@@ -1,0 +1,14 @@
+type: object
+required:
+  - user_uuid
+  - part_uuids
+properties:
+  user_uuid:
+    type: string
+    description: uuid пользователя
+    example: "awseq-1231-zxcz-4555"
+  part_uuids:
+    type: array
+    items:
+      type: string
+    example: ["awseq-1231-zxcz-4555", "awseq-1231-zxcz-4556"]

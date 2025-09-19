@@ -1,0 +1,8 @@
+type: object
+required:
+  - transaction_uuid
+properties:
+  transaction_uuid:
+    type: string
+    description: uuid транзакции при оплате
+    example: "awseq-1231-zxcz-4555"

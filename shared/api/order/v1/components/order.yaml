@@ -1,0 +1,41 @@
+type: object
+required:
+  - order_uuid
+  - user_uuid
+  - part_uuids
+  - total_price
+#  - transaction_uuid
+#  - payment_method
+  - status
+properties:
+  order_uuid:
+    type: string
+    description: uuid заказа
+    example: "awseq-1231-zxcz-4555"
+  user_uuid:
+    type: string
+    description: uuid пользователя
+    example: "awseq-1231-zxcz-7777"
+  part_uuids:
+    type: array
+    items:
+      type: string
+    description: uuids запчастей
+    example: ["awseq-1231-zxcz-5555", "awseq-1231-zxcz-6666"]
+  total_price:
+    type: integer
+    format: float
+    description: Итоговая цена заказа
+    example: 123.45
+  transaction_uuid:
+    type: string
+    description: uuid транзакции оплаты заказа
+    example: "awseq-1231-zxcz-1111"
+  payment_method:
+    type: string
+    description: Способ оплаты
+    example: CARD
+  status:
+    type: string
+    description: Статус заказа
+    example: PAID

@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package inventory.v1;
+
+import "google/protobuf/timestamp.proto";
+
+//Указывает куда будет сохранен сгенерированные файлы go и указывается название пакета после;
+option go_package = "github.com/rocker-crm/shared/pkg/proto/inventory/v1;inventory_v1";
+
+// InventoryService предоставляет API для работы с деталями для сборки
+service InventoryService {
+  // GetPart Получение одной детали по uuid
+  rpc GetPart(GetPartRequest) returns (GetPartResponse);
+
+  // ListParts Получение списка деталей с фильтрацией
+  rpc ListParts(ListPartsRequest) returns (ListPartsResponse);
+}
+
+// GetPartRequest Входные значения для получения одной детали
+message GetPartRequest {
+  // uuid - детали
+  string uuid = 1;
+}
+// GetPartResponse Ответ с данными по запчасти
+message GetPartResponse {
+  // Part - сущность детали
+  Part part = 1;
+}
+
+// Part - сущность детали
+message Part {
+  string uuid = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int64  stock_quantity = 5;
+  Category category = 6;
+  Dimensions  dimensions = 7;
+  Manufacturer  manufacturer = 8;
+  repeated string tags = 9;
+  map<string, Value> metadata = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+// Category - категории деталей.
+enum Category {
+  // CATEGORY_UNSPECIFIED - категория не указана.
+  CATEGORY_UNSPECIFIED = 0;
+  // CATEGORY_ENGINE - двигатель.
+  CATEGORY_ENGINE = 1;
+  // CATEGORY_FUEL - топливная система.
+  CATEGORY_FUEL = 2;
+  // CATEGORY_PORTHOLE - иллюминатор.
+  CATEGORY_PORTHOLE = 3;
+  // CATEGORY_WING - крыло.
+  CATEGORY_WING = 4;
+}
+// Dimensions - Размеры детали
+message Dimensions {
+  double length = 1;
+  double width = 2;
+  double height = 3;
+  double weight = 4;
+}
+// Manufacturer - Информация о производителе
+message Manufacturer {
+  string name = 1;
+  string country = 2;
+  string website = 3;
+}
+
+// Value - Гибкие метаданные
+message Value {
+  oneof kind {
+    string string_value = 1;
+    int64 int64_value = 2;
+    double double_value = 3;
+    bool bool_value = 4;
+  }
+}
+// ListPartsRequest - входные значения для получения списка деталей
+message ListPartsRequest {
+  // PartsFilter - фильтр по котором будут фильтроваться детали при получении
+  PartsFilter filter = 1;
+}
+// PartsFilter - фильтр для деталей
+message PartsFilter {
+  repeated string uuids = 1;
+  repeated string names = 2;
+  repeated Category categories = 3;
+  repeated string manufacturer_countries = 4;
+  repeated string tags = 5;
+}
+// ListPartsResponse - ответ при получении всех деталей
+message ListPartsResponse {
+  // Part - возвращает срез деталей parts
+  repeated Part parts = 1;
+}

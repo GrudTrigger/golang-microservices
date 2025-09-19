@@ -1,0 +1,7 @@
+name: order_uuid
+in: path
+required: true
+description: uuid заказа
+schema:
+  type: string
+  example: "1234-1234-1234-1234"
