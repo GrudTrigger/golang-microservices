@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -25,11 +26,17 @@ type InventoryService struct {
 	parts map[string]*inventoryV1.Part
 }
 
-func (s *InventoryService) GetPart(context.Context, *inventoryV1.GetPartRequest) (*inventoryV1.GetPartResponse, error) {
-	return nil, nil
+func (s *InventoryService) GetPart(ctx context.Context, req *inventoryV1.GetPartRequest) (*inventoryV1.GetPartResponse, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	p, ok := s.parts[req.Uuid]
+	if !ok {
+		return nil, errors.New("NotFound")
+	}
+	return &inventoryV1.GetPartResponse{Part: p}, nil
 }
 
-func (s *InventoryService) ListParts(context.Context, *inventoryV1.ListPartsRequest) (*inventoryV1.ListPartsResponse, error) {
+func (s *InventoryService) ListParts(ctx context.Context, req *inventoryV1.ListPartsRequest) (*inventoryV1.ListPartsResponse, error) {
 	return nil, nil
 }
 

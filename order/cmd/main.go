@@ -74,8 +74,8 @@ type OrdersHandler struct {
 	paymentClient   paymentV1.PaymentServiceClient
 }
 
-func NewOrdersHandler(storage *OrdersStorage, IClient inventoryV1.InventoryServiceClient, PClient paymentV1.PaymentServiceClient) *OrdersHandler {
-	return &OrdersHandler{storage, IClient, PClient}
+func NewOrdersHandler(storage *OrdersStorage, iClient inventoryV1.InventoryServiceClient, pClient paymentV1.PaymentServiceClient) *OrdersHandler {
+	return &OrdersHandler{storage, iClient, pClient}
 }
 
 func (h *OrdersHandler) CreateOrder(ctx context.Context, req *ordersV1.CreateOrderRequest) (ordersV1.CreateOrderRes, error) {
@@ -156,37 +156,37 @@ func (h *OrdersHandler) NewError(_ context.Context, err error) *ordersV1.Generic
 }
 
 func main() {
-	//создает коннект до микросервиса inventory
+	// создает коннект до микросервиса inventory
 	connInventory, err := grpc.NewClient(inventoryAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("failed to connect: %v\n", err)
 		return
 	}
 
-	//Закрываем соединение после отключения order сервиса, чтобы не было зависшего соединение, которое уже не нужно
+	// Закрываем соединение после отключения order сервиса, чтобы не было зависшего соединение, которое уже не нужно
 	defer func() {
 		if cerr := connInventory.Close(); cerr != nil {
 			log.Printf("failed to close connect: %v", cerr)
 		}
 	}()
 
-	//создаем коннект до микросервиса payment
+	// создаем коннект до микросервиса payment
 	connPayment, err := grpc.NewClient(paymentAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("failed to connect: %v\n", err)
 		return
 	}
 
-	//Закрываем соединение после отключения order сервиса, чтобы не было зависшего соединение, которое уже не нужно
+	// Закрываем соединение после отключения order сервиса, чтобы не было зависшего соединение, которое уже не нужно
 	defer func() {
 		if cerr := connInventory.Close(); cerr != nil {
 			log.Printf("failed to close connect: %v", cerr)
 		}
 	}()
 
-	//оборачивает коннект чтобы у него были методы gRPC сервера, чтобы можно было вызывать просто как метод структуры в go
+	// оборачивает коннект чтобы у него были методы gRPC сервера, чтобы можно было вызывать просто как метод структуры в go
 	inventoryClient := inventoryV1.NewInventoryServiceClient(connInventory)
-	//оборачивает коннект чтобы у него были методы gRPC сервера, чтобы можно было вызывать просто как метод структуры в go
+	// оборачивает коннект чтобы у него были методы gRPC сервера, чтобы можно было вызывать просто как метод структуры в go
 	paymentClient := paymentV1.NewPaymentServiceClient(connPayment)
 
 	storage := NewOrdersStorage()
@@ -194,7 +194,8 @@ func main() {
 
 	ordersServer, err := ordersV1.NewServer(ordersHandler)
 	if err != nil {
-		log.Fatalf("ошибка создания OpenAPI: %v", err)
+		log.Printf("ошибка создания OpenAPI: %v", err)
+		return
 	}
 	// Инициализируем роутер Chi
 	r := chi.NewRouter()
