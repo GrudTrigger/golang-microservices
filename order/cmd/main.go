@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	httpPort          = "8081"
+	httpPort          = "8080"
 	inventoryAddress  = "localhost:50051"
 	paymentAddress    = "localhost:50052"
 	readHeaderTimeout = 5 * time.Second
