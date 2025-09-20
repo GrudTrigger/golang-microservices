@@ -353,7 +353,7 @@ type Order struct {
 	// Uuids запчастей.
 	PartUuids []string `json:"part_uuids"`
 	// Итоговая цена заказа.
-	TotalPrice int `json:"total_price"`
+	TotalPrice float32 `json:"total_price"`
 	// Uuid транзакции оплаты заказа.
 	TransactionUUID OptString `json:"transaction_uuid"`
 	// Способ оплаты.
@@ -378,7 +378,7 @@ func (s *Order) GetPartUuids() []string {
 }
 
 // GetTotalPrice returns the value of TotalPrice.
-func (s *Order) GetTotalPrice() int {
+func (s *Order) GetTotalPrice() float32 {
 	return s.TotalPrice
 }
 
@@ -413,7 +413,7 @@ func (s *Order) SetPartUuids(val []string) {
 }
 
 // SetTotalPrice sets the value of TotalPrice.
-func (s *Order) SetTotalPrice(val int) {
+func (s *Order) SetTotalPrice(val float32) {
 	s.TotalPrice = val
 }
 

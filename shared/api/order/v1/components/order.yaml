@@ -23,7 +23,7 @@ properties:
     description: uuids запчастей
     example: ["awseq-1231-zxcz-5555", "awseq-1231-zxcz-6666"]
   total_price:
-    type: integer
+    type: number
     format: float
     description: Итоговая цена заказа
     example: 123.45

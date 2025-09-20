@@ -7,30 +7,26 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
-	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
+	"github.com/google/uuid"
+	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 const (
-	grpcPORT = 50051
+	grpcPORT = 50052
 )
 
-type InventoryService struct {
-	inventoryV1.UnimplementedInventoryServiceServer
-	mu    sync.RWMutex
-	parts map[string]*inventoryV1.Part
+type PaymentService struct {
+	paymentV1.UnimplementedPaymentServiceServer
 }
 
-func (s *InventoryService) GetPart(context.Context, *inventoryV1.GetPartRequest) (*inventoryV1.GetPartResponse, error) {
-	return nil, nil
-}
-
-func (s *InventoryService) ListParts(context.Context, *inventoryV1.ListPartsRequest) (*inventoryV1.ListPartsResponse, error) {
-	return nil, nil
+func (s *PaymentService) PayOrder(context.Context, *paymentV1.PayOrderRequest) (*paymentV1.PayOrderResponse, error) {
+	tranUuid := uuid.NewString()
+	log.Printf("Оплата прошла успешно, transaction_uuid: <%s>\n", tranUuid)
+	return &paymentV1.PayOrderResponse{TransactionUuid: tranUuid}, nil
 }
 
 func main() {
@@ -47,11 +43,9 @@ func main() {
 
 	s := grpc.NewServer()
 
-	service := &InventoryService{
-		parts: make(map[string]*inventoryV1.Part),
-	}
+	service := &PaymentService{}
 
-	inventoryV1.RegisterInventoryServiceServer(s, service)
+	paymentV1.RegisterPaymentServiceServer(s, service)
 
 	// Включаем рефлексию для отладки
 	reflection.Register(s)

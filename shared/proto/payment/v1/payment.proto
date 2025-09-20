@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "github.com/rocket-crm/shared/pkg/proto/payment/v1;payment_v1";
+
+// PaymentService - предоставляет API для работы с сервисом оплаты
+service PaymentService {
+  // PayOrder - метод проведения оплаты
+  rpc PayOrder(PayOrderRequest) returns (PayOrderResponse);
+}
+
+// PayOrderRequest - данные которые принимает PaymentService
+message PayOrderRequest {
+  string order_uuid = 1;
+  string user_uuid = 2;
+  PaymentMethod payment_method = 3;
+}
+
+// PaymentMethod - перечисление методов оплаты
+enum PaymentMethod{
+  // PAYMENT_METHOD_UNSPECIFIED - метод оплаты не указан
+  PAYMENT_METHOD_UNSPECIFIED = 0;
+  // PAYMENT_METHOD_CARD - метод оплаты картой
+  PAYMENT_METHOD_CARD = 1;
+  // PAYMENT_METHOD_SBP - метод оплаты не СБП
+  PAYMENT_METHOD_SBP = 2;
+  // PAYMENT_METHOD_CREDIT_CARD - метод оплаты кредитной картой
+  PAYMENT_METHOD_CREDIT_CARD = 3;
+  // PAYMENT_METHOD_INVESTOR_MONEY - метод оплаты деньгами инвестора
+  PAYMENT_METHOD_INVESTOR_MONEY = 4;
+}
+
+// PayOrderResponse - данные которые возвращает PaymentService
+message PayOrderResponse{
+  // transaction_uuid - транзакция перевода
+  string transaction_uuid = 1;
+}

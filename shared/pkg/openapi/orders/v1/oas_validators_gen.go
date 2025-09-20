@@ -71,6 +71,17 @@ func (s *Order) Validate() error {
 			Error: err,
 		})
 	}
+	if err := func() error {
+		if err := (validate.Float{}).Validate(float64(s.TotalPrice)); err != nil {
+			return errors.Wrap(err, "float")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "total_price",
+			Error: err,
+		})
+	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
 	}
