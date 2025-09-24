@@ -45,7 +45,7 @@ func (s *InventoryService) GetPart(ctx context.Context, req *inventoryV1.GetPart
 
 func (s *InventoryService) ListParts(ctx context.Context, req *inventoryV1.ListPartsRequest) (*inventoryV1.ListPartsResponse, error) {
 	var res []*inventoryV1.Part
-
+	
 	if len(req.Filter.Uuids) == 0 && len(req.Filter.ManufacturerCountries) == 0 && len(req.Filter.Names) == 0 && len(req.Filter.Tags) == 0 && len(req.Filter.Categories) == 0 {
 		for _, p := range s.parts {
 			res = append(res, p)
