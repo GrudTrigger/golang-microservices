@@ -2,16 +2,16 @@ package inventory
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/rocket-crm/inventory/internal/model"
 	"github.com/rocket-crm/inventory/internal/repository/converter"
 )
 
-func(r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([]model.Part, error) {
+func (r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([]model.Part, error) {
 	var result []model.Part
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	
 	if len(filter.Uuids) == 0 && len(filter.ManufacturerCountries) == 0 && len(filter.Names) == 0 && len(filter.Tags) == 0 && len(filter.Categories) == 0 {
 		for _, p := range r.data {
 			result = append(result, converter.PartToModel(p))
@@ -67,5 +67,6 @@ func(r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([]
 			}
 		}
 	}
+	fmt.Println("repository-len", len(result))
 	return result, nil
 }
