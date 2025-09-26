@@ -2,7 +2,6 @@ package inventory
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/rocket-crm/inventory/internal/model"
 	"github.com/rocket-crm/inventory/internal/repository/converter"
@@ -67,6 +66,5 @@ func (r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([
 			}
 		}
 	}
-	fmt.Println("repository-len", len(result))
 	return result, nil
 }

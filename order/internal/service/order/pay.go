@@ -7,8 +7,6 @@ import (
 	"github.com/rocket-crm/order/internal/model"
 )
 
-const PAID = "PAID"
-
 func (s *service) PayOrder(ctx context.Context, paymentMethod string, orderUuid string) (string, error) {
 	order, err := s.orderRepository.GetByUuid(orderUuid)
 	if err != nil {
@@ -19,7 +17,7 @@ func (s *service) PayOrder(ctx context.Context, paymentMethod string, orderUuid 
 	if err != nil {
 		return "", err
 	}
-	transactionUuid, err := s.orderRepository.Update(order.OrderUUID, resp.TransactionUuid, paymentMethod)
+	transactionUuid, err := s.orderRepository.Update(order.OrderUUID, resp.TransactionUuid, paymentMethod, "PAID")
 	if err != nil {
 		return "", model.ErrOrderNotFound
 	}

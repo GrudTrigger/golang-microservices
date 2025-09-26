@@ -3,7 +3,6 @@ package order
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
 	"github.com/rocket-crm/order/internal/model"
@@ -14,8 +13,7 @@ func (s *service) CreateOrder(ctx context.Context, data model.CreateOrder) (mode
 	if err != nil {
 		return model.ResponseCreateOrder{}, err
 	}
-	fmt.Printf("resParts.Parts %#v\n", len(resParts.Parts))
-	fmt.Printf("data.PartUuids %#v\n", len(data.PartUuids))
+
 	if len(resParts.Parts) != len(data.PartUuids) {
 		return model.ResponseCreateOrder{}, errors.New("найдены не все запчасти, проверьте uuid деталей")
 	}

@@ -100,7 +100,7 @@ func CategoriesToModel(c []inventoryV1.Category) []model.Category {
 }
 
 func PartsToProto(parts []model.Part) []*inventoryV1.Part {
-	res := make([]*inventoryV1.Part, len(parts))
+	var res []*inventoryV1.Part
 	for _, v := range parts {
 		p := PartToProto(v)
 		res = append(res, p)

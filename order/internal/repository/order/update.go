@@ -5,16 +5,20 @@ import (
 	"github.com/rocket-crm/order/internal/model"
 )
 
-const PAID = "PAID"
-
-func (r *repository) Update(uuid string, transactionUuid string, paymentMethod string) (string, error) {
+func (r *repository) Update(uuid string, transactionUuid string, paymentMethod string, status string) (string, error) {
 	order, ok := r.orders[uuid]
 	if !ok {
 		return "", model.ErrOrderNotFound
 	}
-	order.Status = PAID
-	order.TransactionUUID = ordersV1.NewOptString(transactionUuid)
-	order.PaymentMethod = ordersV1.NewOptString(paymentMethod)
+	order.Status = status
+	if transactionUuid != "" {
+		order.TransactionUUID = ordersV1.NewOptString(transactionUuid)
 
+	}
+
+	if paymentMethod != "" {
+		order.PaymentMethod = ordersV1.NewOptString(paymentMethod)
+	}
+	r.orders[uuid] = order
 	return order.TransactionUUID.Value, nil
 }

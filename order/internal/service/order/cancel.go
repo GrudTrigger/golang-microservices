@@ -6,7 +6,10 @@ import (
 	ordersV1 "github.com/rocker-crm/shared/pkg/openapi/orders/v1"
 )
 
-const CANCELLED = "CANCELLED"
+const (
+	CANCELLED = "CANCELLED"
+	PAID      = "PAID"
+)
 
 func (s *service) CancelOrder(ctx context.Context, orderUuid string) (ordersV1.CancelOrderRes, error) {
 	order, err := s.orderRepository.GetByUuid(orderUuid)
@@ -18,6 +21,9 @@ func (s *service) CancelOrder(ctx context.Context, orderUuid string) (ordersV1.C
 		return &ordersV1.ConflictError{}, nil
 	}
 
-	order.Status = CANCELLED
+	_, err = s.orderRepository.Update(order.OrderUUID, "", "", CANCELLED)
+	if err != nil {
+		return nil, err
+	}
 	return &ordersV1.CancelOrderNoContent{}, nil
 }
