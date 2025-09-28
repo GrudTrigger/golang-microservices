@@ -20,3 +20,7 @@ func OrderModelToOrder(order model.Order) *ordersV1.Order {
 		PaymentMethod:   order.PaymentMethod,
 	}
 }
+
+func Ptr[T any](v T) *T {
+	return &v
+}

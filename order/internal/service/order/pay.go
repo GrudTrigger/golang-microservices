@@ -13,11 +13,11 @@ func (s *service) PayOrder(ctx context.Context, paymentMethod string, orderUuid 
 		return "", model.ErrOrderNotFound
 	}
 
-	resp, err := s.paymentClient.PayOrder(ctx, &paymentV1.PayOrderRequest{UserUuid: order.UserUUID, OrderUuid: order.OrderUUID, PaymentMethod: paymentV1.PaymentMethod(paymentV1.PaymentMethod_value[paymentMethod])})
+	uuid, err := s.paymentClient.PayOrder(ctx, model.RequestPay{UserUuid: order.UserUUID, OrderUuid: order.OrderUUID, PaymentMethod: model.PaymentMethod(paymentV1.PaymentMethod_value[paymentMethod])})
 	if err != nil {
 		return "", err
 	}
-	transactionUuid, err := s.orderRepository.Update(order.OrderUUID, resp.TransactionUuid, paymentMethod, "PAID")
+	transactionUuid, err := s.orderRepository.Update(order.OrderUUID, uuid, paymentMethod, "PAID")
 	if err != nil {
 		return "", model.ErrOrderNotFound
 	}

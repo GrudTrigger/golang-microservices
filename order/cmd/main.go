@@ -17,6 +17,8 @@ import (
 	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	orderAPI "github.com/rocket-crm/order/internal/api/order/v1"
+	grpcInventory "github.com/rocket-crm/order/internal/client/grpc/inventory/v1"
+	grpcPayment "github.com/rocket-crm/order/internal/client/grpc/payment/v1"
 	orderRepository "github.com/rocket-crm/order/internal/repository/order"
 	orderService "github.com/rocket-crm/order/internal/service/order"
 	"google.golang.org/grpc"
@@ -64,8 +66,11 @@ func main() {
 	// оборачивает коннект чтобы у него были методы gRPC сервера, чтобы можно было вызывать просто как метод структуры в go
 	paymentClient := paymentV1.NewPaymentServiceClient(connPayment)
 
+	grpcClientInventory := grpcInventory.NewClient(inventoryClient)
+	grpcClientPyament := grpcPayment.NewClient(paymentClient)
+
 	repository := orderRepository.NewRepository()
-	service := orderService.NewService(repository, inventoryClient, paymentClient)
+	service := orderService.NewService(repository, grpcClientInventory, grpcClientPyament)
 	api := orderAPI.NewAPI(service)
 
 	ordersServer, err := ordersV1.NewServer(api)

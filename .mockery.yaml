@@ -22,3 +22,15 @@ packages:
   github.com/rocket-crm/payment/internal/repository:
     config:
       include-regex: ".*Repository"
+
+  github.com/rocket-crm/order/internal/service:
+    config:
+      include-regex: ".*Service"
+
+  github.com/rocket-crm/order/internal/repository:
+    config:
+      include-regex: ".*Repository"
+
+  github.com/rocket-crm/order/internal/client/grpc:
+    config:
+      include-regex: ".*Client"
