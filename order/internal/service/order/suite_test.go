@@ -1,7 +1,6 @@
 package order
 
 import (
-	"context"
 	"testing"
 
 	mocksClient "github.com/rocket-crm/order/internal/client/grpc/mocks"
@@ -12,8 +11,6 @@ import (
 type ServiceSuite struct {
 	suite.Suite
 
-	ctx context.Context
-
 	orderRepository *mocksRepo.OrderRepository
 	inventoryClient *mocksClient.InventoryClient
 	paymentClient   *mocksClient.PaymentClient
@@ -22,8 +19,6 @@ type ServiceSuite struct {
 }
 
 func (s *ServiceSuite) SetupTest() {
-	s.ctx = context.Background()
-
 	s.orderRepository = mocksRepo.NewOrderRepository(s.T())
 	s.inventoryClient = mocksClient.NewInventoryClient(s.T())
 	s.paymentClient = mocksClient.NewPaymentClient(s.T())

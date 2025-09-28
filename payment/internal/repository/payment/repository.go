@@ -1,7 +1,6 @@
 package payment
 
-
-type repository struct {}
+type repository struct{}
 
 func NewRepository() *repository {
 	return &repository{}

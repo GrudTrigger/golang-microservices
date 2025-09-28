@@ -5,7 +5,7 @@ import (
 	"github.com/rocket-crm/order/internal/model"
 )
 
-func (r *repository) Update(uuid string, transactionUuid string, paymentMethod string, status string) (string, error) {
+func (r *repository) Update(uuid, transactionUuid, paymentMethod, status string) (string, error) {
 	order, ok := r.orders[uuid]
 	if !ok {
 		return "", model.ErrOrderNotFound
@@ -13,7 +13,6 @@ func (r *repository) Update(uuid string, transactionUuid string, paymentMethod s
 	order.Status = status
 	if transactionUuid != "" {
 		order.TransactionUUID = ordersV1.NewOptString(transactionUuid)
-
 	}
 
 	if paymentMethod != "" {

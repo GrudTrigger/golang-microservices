@@ -1,6 +1,7 @@
 package inventory
 
 import (
+	"context"
 	"time"
 
 	"github.com/brianvoe/gofakeit/v7"
@@ -36,17 +37,18 @@ func (s *ServiceSuite) TestGetPartSuccess() {
 		CreatedAt: converter.Ptr(time.Now()),
 		UpdatedAt: converter.Ptr(time.Now()),
 	}
-
-	s.inventoryRepository.On("GetPart", s.ctx, partUuid).Return(p, nil)
-	part, err := s.service.GetPart(s.ctx, partUuid)
+	ctx := context.Background()
+	s.inventoryRepository.On("GetPart", ctx, partUuid).Return(p, nil)
+	part, err := s.service.GetPart(ctx, partUuid)
 	s.Require().NoError(err)
 	s.Require().Equal(partUuid, part.Uuid)
 }
 
 func (s *ServiceSuite) TestGetPartNotFound() {
 	partUuid := gofakeit.UUID()
-	s.inventoryRepository.On("GetPart", s.ctx, partUuid).Return(model.Part{}, model.ErrPartNotFound)
-	part, err := s.service.GetPart(s.ctx, partUuid)
+	ctx := context.Background()
+	s.inventoryRepository.On("GetPart", ctx, partUuid).Return(model.Part{}, model.ErrPartNotFound)
+	part, err := s.service.GetPart(ctx, partUuid)
 	s.Require().ErrorIs(err, model.ErrPartNotFound)
 	s.Require().Equal(model.Part{}, part)
 }

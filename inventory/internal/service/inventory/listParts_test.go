@@ -1,6 +1,7 @@
 package inventory
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -65,9 +66,9 @@ func (s *ServiceSuite) TestListPartsEmptyFiltersSuccess() {
 			UpdatedAt: converter.Ptr(time.Now()),
 		},
 	}
-
-	s.inventoryRepository.On("ListParts", s.ctx, filter).Return(parts, nil)
-	p, err := s.service.ListParts(s.ctx, filter)
+	ctx := context.Background()
+	s.inventoryRepository.On("ListParts", ctx, filter).Return(parts, nil)
+	p, err := s.service.ListParts(ctx, filter)
 	s.Require().Equal(p, parts)
 	s.NoError(err)
 }
@@ -100,7 +101,6 @@ var responsePart = model.Part{
 }
 
 func (s *ServiceSuite) TestListPartsWithFilterSuccess() {
-
 	tests := []struct {
 		filter   model.PartsFilter
 		resParts []model.Part
@@ -122,10 +122,10 @@ func (s *ServiceSuite) TestListPartsWithFilterSuccess() {
 			resParts: []model.Part{responsePart},
 		},
 	}
-
+	ctx := context.Background()
 	for _, test := range tests {
-		s.inventoryRepository.On("ListParts", s.ctx, test.filter).Return(test.resParts, nil)
-		p, err := s.service.ListParts(s.ctx, test.filter)
+		s.inventoryRepository.On("ListParts", ctx, test.filter).Return(test.resParts, nil)
+		p, err := s.service.ListParts(ctx, test.filter)
 		s.Require().Equal(p, test.resParts)
 		s.Require().NoError(err)
 	}
@@ -135,8 +135,9 @@ func (s *ServiceSuite) TestListPartsWithFilterEmptyResponseSuccess() {
 	filter := model.PartsFilter{
 		Names: []string{"empty response"},
 	}
-	s.inventoryRepository.On("ListParts", s.ctx, filter).Return([]model.Part{}, nil)
-	p, err := s.service.ListParts(s.ctx, filter)
+	ctx := context.Background()
+	s.inventoryRepository.On("ListParts", ctx, filter).Return([]model.Part{}, nil)
+	p, err := s.service.ListParts(ctx, filter)
 	s.Require().Len(p, 0)
 	s.Require().NoError(err)
 }
@@ -145,8 +146,9 @@ func (s *ServiceSuite) TestListPartsWithError() {
 	filter := model.PartsFilter{
 		Names: []string{"Warp Drive"},
 	}
-	s.inventoryRepository.On("ListParts", s.ctx, filter).Return([]model.Part{}, errors.New("test error"))
-	p, err := s.service.ListParts(s.ctx, filter)
+	ctx := context.Background()
+	s.inventoryRepository.On("ListParts", ctx, filter).Return([]model.Part{}, errors.New("test error"))
+	p, err := s.service.ListParts(ctx, filter)
 	s.Require().Error(err)
 	s.Require().Len(p, 0)
 }

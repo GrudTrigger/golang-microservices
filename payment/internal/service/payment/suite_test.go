@@ -5,13 +5,10 @@ import (
 
 	"github.com/rocket-crm/payment/internal/repository/mocks"
 	"github.com/stretchr/testify/suite"
-	"golang.org/x/net/context"
 )
 
 type ServiceSuite struct {
 	suite.Suite
-
-	ctx context.Context
 
 	paymentRepository *mocks.PaymentRepository
 
@@ -19,8 +16,6 @@ type ServiceSuite struct {
 }
 
 func (s *ServiceSuite) SetupTest() {
-	s.ctx = context.Background()
-
 	s.paymentRepository = mocks.NewPaymentRepository(s.T())
 
 	s.service = NewService(s.paymentRepository)

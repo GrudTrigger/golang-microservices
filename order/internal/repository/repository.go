@@ -7,5 +7,5 @@ import (
 type OrderRepository interface {
 	Create(req model.CreateOrder, totalPrice float32) model.Order
 	GetByUuid(uuid string) (model.Order, error)
-	Update(uuid string, transactionUuid string, paymentMethod string, status string) (string, error)
+	Update(uuid, transactionUuid, paymentMethod, status string) (string, error)
 }

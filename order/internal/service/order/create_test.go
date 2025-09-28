@@ -1,6 +1,7 @@
 package order
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -66,7 +67,8 @@ func (s *ServiceSuite) TestCreateSuccess() {
 			UpdatedAt: converter.Ptr(time.Now()),
 		},
 	}
-	s.inventoryClient.On("ListParts", s.ctx, filter).Return(parts, nil)
+	ctx := context.Background()
+	s.inventoryClient.On("ListParts", ctx, filter).Return(parts, nil)
 
 	createModel := model.CreateOrder{
 		UserUUID:  uuid.NewString(),
@@ -84,7 +86,7 @@ func (s *ServiceSuite) TestCreateSuccess() {
 	}
 	s.orderRepository.On("Create", createModel, totalPrice).Return(order)
 
-	resp, err := s.service.CreateOrder(s.ctx, createModel)
+	resp, err := s.service.CreateOrder(ctx, createModel)
 	s.Require().NoError(err)
 	s.Require().Equal(totalPrice, resp.TotalPrice)
 	s.Require().Equal(order.OrderUUID, resp.UUID)
@@ -94,14 +96,15 @@ func (s *ServiceSuite) TestCreateError() {
 	uuidParts := []string{uuid.NewString(), uuid.NewString()}
 	filter := model.PartsFilter{Uuids: uuidParts}
 	errorClient := errors.New("найдены не все запчасти, проверьте uuid деталей")
-	s.inventoryClient.On("ListParts", s.ctx, filter).Return([]model.Part{}, errorClient)
+	ctx := context.Background()
+	s.inventoryClient.On("ListParts", ctx, filter).Return([]model.Part{}, errorClient)
 
 	createModel := model.CreateOrder{
 		UserUUID:  uuid.NewString(),
 		PartUuids: uuidParts,
 	}
 
-	resp, err := s.service.CreateOrder(s.ctx, createModel)
+	resp, err := s.service.CreateOrder(ctx, createModel)
 	s.Require().ErrorIs(err, errorClient)
 	s.Require().Empty(resp)
 }

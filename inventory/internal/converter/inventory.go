@@ -53,7 +53,6 @@ func ManufacturerToProto(m *model.Manufacturer) *inventoryV1.Manufacturer {
 }
 
 func MetadataToProto(m map[string]any) map[string]*inventoryV1.Value {
-
 	res := make(map[string]*inventoryV1.Value)
 
 	for k, v := range m {

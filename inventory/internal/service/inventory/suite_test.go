@@ -1,7 +1,6 @@
 package inventory
 
 import (
-	"context"
 	"testing"
 
 	"github.com/rocket-crm/inventory/internal/repository/mocks"
@@ -11,16 +10,12 @@ import (
 type ServiceSuite struct {
 	suite.Suite
 
-	ctx context.Context
-
 	inventoryRepository *mocks.InventoryRepository
 
 	service *service
 }
 
 func (s *ServiceSuite) SetupTest() {
-	s.ctx = context.Background()
-
 	s.inventoryRepository = mocks.NewInventoryRepository(s.T())
 
 	s.service = NewService(

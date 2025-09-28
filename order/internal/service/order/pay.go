@@ -7,7 +7,7 @@ import (
 	"github.com/rocket-crm/order/internal/model"
 )
 
-func (s *service) PayOrder(ctx context.Context, paymentMethod string, orderUuid string) (string, error) {
+func (s *service) PayOrder(ctx context.Context, paymentMethod, orderUuid string) (string, error) {
 	order, err := s.orderRepository.GetByUuid(orderUuid)
 	if err != nil {
 		return "", model.ErrOrderNotFound
