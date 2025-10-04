@@ -12,7 +12,7 @@ const (
 )
 
 func (s *service) CancelOrder(ctx context.Context, orderUuid string) (ordersV1.CancelOrderRes, error) {
-	order, err := s.orderRepository.GetByUuid(orderUuid)
+	order, err := s.orderRepository.GetByUuid(ctx, orderUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func (s *service) CancelOrder(ctx context.Context, orderUuid string) (ordersV1.C
 		return &ordersV1.ConflictError{}, nil
 	}
 
-	_, err = s.orderRepository.Update(order.OrderUUID, "", "", CANCELLED)
+	_, err = s.orderRepository.Update(ctx, order.OrderUUID, "", "", CANCELLED)
 	if err != nil {
 		return nil, err
 	}

@@ -1,18 +1,15 @@
 package order
 
 import (
-	"sync"
-
-	repoModal "github.com/rocket-crm/order/internal/repository/model"
+	"github.com/jackc/pgx/v5"
 )
 
 type repository struct {
-	mu     sync.RWMutex
-	orders map[string]repoModal.Order
+	db *pgx.Conn
 }
 
-func NewRepository() *repository {
+func NewRepository(db *pgx.Conn) *repository {
 	return &repository{
-		orders: make(map[string]repoModal.Order),
+		db: db,
 	}
 }

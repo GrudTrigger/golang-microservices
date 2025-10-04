@@ -42,3 +42,11 @@ func PartToModel(part repoModel.Part) model.Part {
 func Ptr[T any](v T) *T {
 	return &v
 }
+
+func PartToModelSlice(parts []repoModel.Part) []model.Part {
+	res := make([]model.Part, 0, len(parts))
+	for _, p := range parts {
+		res = append(res, PartToModel(p))
+	}
+	return res
+}

@@ -8,7 +8,7 @@ import (
 )
 
 func (s *service) PayOrder(ctx context.Context, paymentMethod, orderUuid string) (string, error) {
-	order, err := s.orderRepository.GetByUuid(orderUuid)
+	order, err := s.orderRepository.GetByUuid(ctx, orderUuid)
 	if err != nil {
 		return "", model.ErrOrderNotFound
 	}
@@ -17,7 +17,7 @@ func (s *service) PayOrder(ctx context.Context, paymentMethod, orderUuid string)
 	if err != nil {
 		return "", err
 	}
-	transactionUuid, err := s.orderRepository.Update(order.OrderUUID, uuid, paymentMethod, "PAID")
+	transactionUuid, err := s.orderRepository.Update(ctx, order.OrderUUID, uuid, paymentMethod, "PAID")
 	if err != nil {
 		return "", model.ErrOrderNotFound
 	}

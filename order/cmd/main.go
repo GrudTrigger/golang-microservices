@@ -13,12 +13,16 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 	ordersV1 "github.com/rocker-crm/shared/pkg/openapi/orders/v1"
 	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	orderAPI "github.com/rocket-crm/order/internal/api/order/v1"
 	grpcInventory "github.com/rocket-crm/order/internal/client/grpc/inventory/v1"
 	grpcPayment "github.com/rocket-crm/order/internal/client/grpc/payment/v1"
+	"github.com/rocket-crm/order/internal/migrator"
 	orderRepository "github.com/rocket-crm/order/internal/repository/order"
 	orderService "github.com/rocket-crm/order/internal/service/order"
 	"google.golang.org/grpc"
@@ -34,6 +38,44 @@ const (
 )
 
 func main() {
+	ctx := context.Background()
+
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Printf("failed to load .env file: %v\n", err)
+		return
+	}
+
+	dbURI := os.Getenv("DB_URI")
+
+	conn, err := pgx.Connect(ctx, dbURI)
+	if err != nil {
+		log.Printf("failed to connect to database: %v\n", err)
+		return
+	}
+	defer func() {
+		cerr := conn.Close(ctx)
+		if cerr != nil {
+			log.Printf("failed to close connection: %v\n", err)
+			return
+		}
+	}()
+
+	err = conn.Ping(ctx)
+	if err != nil {
+		log.Printf("База данных недоступна: %v\n", err)
+		return
+	}
+
+	migrationsDir := os.Getenv("MIGRATIONS_DIR")
+	migratorRunner := migrator.NewMigrator(stdlib.OpenDB(*conn.Config().Copy()), migrationsDir)
+
+	err = migratorRunner.Up()
+	if err != nil {
+		log.Printf("Ошибка миграции базы данных: %v\n", err)
+		return
+	}
+
 	// создает коннект до микросервиса inventory
 	connInventory, err := grpc.NewClient(inventoryAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -69,7 +111,7 @@ func main() {
 	grpcClientInventory := grpcInventory.NewClient(inventoryClient)
 	grpcClientPyament := grpcPayment.NewClient(paymentClient)
 
-	repository := orderRepository.NewRepository()
+	repository := orderRepository.NewRepository(conn)
 	service := orderService.NewService(repository, grpcClientInventory, grpcClientPyament)
 	api := orderAPI.NewAPI(service)
 

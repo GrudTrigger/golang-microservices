@@ -22,7 +22,10 @@ func (s *service) CreateOrder(ctx context.Context, data model.CreateOrder) (mode
 		totalPrice += p.Price
 	}
 
-	o := s.orderRepository.Create(data, totalPrice)
+	o, err := s.orderRepository.Create(ctx, data, totalPrice)
+	if err != nil {
+		return model.ResponseCreateOrder{}, err
+	}
 
 	return model.ResponseCreateOrder{UUID: o.OrderUUID, TotalPrice: totalPrice}, nil
 }

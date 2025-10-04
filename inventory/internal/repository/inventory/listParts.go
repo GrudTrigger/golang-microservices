@@ -2,69 +2,51 @@ package inventory
 
 import (
 	"context"
+	"log"
 
 	"github.com/rocket-crm/inventory/internal/model"
 	"github.com/rocket-crm/inventory/internal/repository/converter"
+	repoModel "github.com/rocket-crm/inventory/internal/repository/model"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([]model.Part, error) {
-	var result []model.Part
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	if len(filter.Uuids) == 0 && len(filter.ManufacturerCountries) == 0 && len(filter.Names) == 0 && len(filter.Tags) == 0 && len(filter.Categories) == 0 {
-		for _, p := range r.data {
-			result = append(result, converter.PartToModel(p))
-		}
-		return result, nil
-	}
+	var result []repoModel.Part
+	mongoFilter := bson.M{}
 
 	if len(filter.Uuids) > 0 {
-		for _, v := range filter.Uuids {
-			for _, p := range r.data {
-				if p.Uuid == v {
-					result = append(result, converter.PartToModel(p))
-				}
-			}
-		}
+		mongoFilter["_id"] = bson.M{"$in": filter.Uuids}
 	}
 
 	if len(filter.Names) > 0 {
-		for _, v := range filter.Names {
-			for _, p := range r.data {
-				if p.Name == v {
-					result = append(result, converter.PartToModel(p))
-				}
-			}
-		}
+		mongoFilter["name"] = bson.M{"$in": filter.Names} // исправлено
 	}
 	if len(filter.Categories) > 0 {
-		for _, v := range filter.Categories {
-			for _, p := range r.data {
-				if v == model.Category(p.Category) {
-					result = append(result, converter.PartToModel(p))
-				}
-			}
-		}
+		mongoFilter["category"] = bson.M{"$in": filter.Categories}
 	}
+
 	if len(filter.ManufacturerCountries) > 0 {
-		for _, v := range filter.ManufacturerCountries {
-			for _, p := range r.data {
-				if v == p.Manufacturer.Country {
-					result = append(result, converter.PartToModel(p))
-				}
-			}
-		}
+		mongoFilter["manufacturer.country"] = bson.M{"$in": filter.ManufacturerCountries}
 	}
+
 	if len(filter.Tags) > 0 {
-		for _, v := range filter.Tags {
-			for _, p := range r.data {
-				for _, t := range p.Tags {
-					if v == t {
-						result = append(result, converter.PartToModel(p))
-					}
-				}
-			}
-		}
+		mongoFilter["tags"] = bson.M{"$in": filter.Tags}
 	}
-	return result, nil
+
+	cursor, err := r.collection.Find(ctx, mongoFilter)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		cerr := cursor.Close(ctx)
+		if cerr != nil {
+			log.Printf("failed to close cursor: %v\n", cerr)
+		}
+	}()
+
+	if err = cursor.All(ctx, &result); err != nil {
+		return nil, err
+	}
+
+	return converter.PartToModelSlice(result), nil
 }

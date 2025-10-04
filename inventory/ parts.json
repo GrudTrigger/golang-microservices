@@ -1,0 +1,78 @@
+[
+  {
+    "uuid": "uuid-part-1",
+    "name": "Engine Core",
+    "description": "High-performance spaceship engine core",
+    "price": 1200.5,
+    "stockQuantity": 5,
+    "category": 1,
+    "dimensions": {
+      "length": 2.5,
+      "width": 1.2,
+      "height": 1.8,
+      "weight": 350.0
+    },
+    "manufacturer": {
+      "name": "SpaceTech Inc",
+      "country": "USA",
+      "website": "https://spacetech.example.com"
+    },
+    "tags": ["engine", "spaceship", "core"],
+    "metadata": {
+      "serial": "SN-12345",
+      "batch": 42
+    },
+    "createdAt": {"$date": "2025-10-04T07:43:27Z"},
+    "updatedAt": {"$date": "2025-10-04T07:43:27Z"}
+  },
+  {
+    "uuid": "uuid-part-2",
+    "name": "Fuel Pump",
+    "description": "Reliable fuel pump for interstellar flights",
+    "price": 300.75,
+    "stockQuantity": 12,
+    "category": 2,
+    "dimensions": {
+      "length": 0.8,
+      "width": 0.4,
+      "height": 0.6,
+      "weight": 25.0
+    },
+    "manufacturer": {
+      "name": "Galaxy Supplies",
+      "country": "Germany",
+      "website": "https://galaxy-supplies.example.com"
+    },
+    "tags": ["fuel", "pump"],
+    "metadata": {
+      "serial": "FP-00987"
+    },
+    "createdAt": {"$date": "2025-10-04T07:43:27Z"},
+    "updatedAt": {"$date": "2025-10-04T07:43:27Z"}
+  },
+  {
+    "uuid": "uuid-part-3",
+    "name": "Porthole Glass",
+    "description": "Reinforced glass for spaceship portholes",
+    "price": 150.0,
+    "stockQuantity": 50,
+    "category": 3,
+    "dimensions": {
+      "length": 1.0,
+      "width": 1.0,
+      "height": 0.02,
+      "weight": 10.0
+    },
+    "manufacturer": {
+      "name": "CosmoGlass",
+      "country": "Japan",
+      "website": "https://cosmoglass.example.com"
+    },
+    "tags": ["glass", "window"],
+    "metadata": {
+      "heat_resistance": 1250.5
+    },
+    "createdAt": {"$date": "2025-10-04T07:43:27Z"},
+    "updatedAt": {"$date": "2025-10-04T07:43:27Z"}
+  }
+]
