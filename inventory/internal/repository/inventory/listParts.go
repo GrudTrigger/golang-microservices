@@ -8,14 +8,22 @@ import (
 	"github.com/rocket-crm/inventory/internal/repository/converter"
 	repoModel "github.com/rocket-crm/inventory/internal/repository/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func (r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([]model.Part, error) {
 	var result []repoModel.Part
 	mongoFilter := bson.M{}
-
 	if len(filter.Uuids) > 0 {
-		mongoFilter["_id"] = bson.M{"$in": filter.Uuids}
+		var findUuids []primitive.ObjectID
+		for _, v := range filter.Uuids {
+			id, err := primitive.ObjectIDFromHex(v)
+			if err != nil {
+				return nil, err
+			}
+			findUuids = append(findUuids, id)
+		}
+		mongoFilter["_id"] = bson.M{"$in": findUuids}
 	}
 
 	if len(filter.Names) > 0 {
@@ -32,7 +40,6 @@ func (r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([
 	if len(filter.Tags) > 0 {
 		mongoFilter["tags"] = bson.M{"$in": filter.Tags}
 	}
-
 	cursor, err := r.collection.Find(ctx, mongoFilter)
 	if err != nil {
 		return nil, err
@@ -47,6 +54,5 @@ func (r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([
 	if err = cursor.All(ctx, &result); err != nil {
 		return nil, err
 	}
-
 	return converter.PartToModelSlice(result), nil
 }

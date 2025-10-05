@@ -26,6 +26,5 @@ func (s *service) CreateOrder(ctx context.Context, data model.CreateOrder) (mode
 	if err != nil {
 		return model.ResponseCreateOrder{}, err
 	}
-
 	return model.ResponseCreateOrder{UUID: o.OrderUUID, TotalPrice: totalPrice}, nil
 }

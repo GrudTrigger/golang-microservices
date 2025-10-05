@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"strconv"
 
 	ordersV1 "github.com/rocker-crm/shared/pkg/openapi/orders/v1"
 	"github.com/rocket-crm/order/internal/model"
@@ -21,7 +22,11 @@ func (r *repository) Update(ctx context.Context, uuid, transactionUuid, paymentM
 		order.PaymentMethod = ordersV1.NewOptString(paymentMethod)
 	}
 
-	_, err = r.db.Exec(ctx, "UPDATE orders SET status=$1, transaction_uuid=$2, payment_method=$3 WHERE id=$4", order.Status, order.TransactionUUID, order.PaymentMethod, uuid)
+	idInt, err := strconv.Atoi(uuid)
+	if err != nil {
+		return "", err
+	}
+	_, err = r.db.Exec(ctx, "UPDATE orders SET status=$1, transaction_uuid=$2, payment_method=$3 WHERE id=$4", status, order.TransactionUUID.Value, order.PaymentMethod.Value, idInt)
 	if err != nil {
 		return "", err
 	}
