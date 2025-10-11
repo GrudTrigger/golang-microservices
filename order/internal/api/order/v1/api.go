@@ -8,6 +8,14 @@ import (
 	"github.com/rocket-crm/order/internal/service"
 )
 
+type API interface {
+	NewError(_ context.Context, err error) *ordersV1.GenericErrorStatusCode
+	CreateOrder(ctx context.Context, req *ordersV1.CreateOrderRequest) (ordersV1.CreateOrderRes, error)
+	GetOrderByUuid(ctx context.Context, params ordersV1.GetOrderByUuidParams) (ordersV1.GetOrderByUuidRes, error)
+	PayOrder(ctx context.Context, req *ordersV1.PayOrderRequest, params ordersV1.PayOrderParams) (ordersV1.PayOrderRes, error)
+	CancelOrder(ctx context.Context, params ordersV1.CancelOrderParams) (ordersV1.CancelOrderRes, error)
+}
+
 type api struct {
 	orderService service.OrderService
 }

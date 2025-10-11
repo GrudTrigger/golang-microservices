@@ -1,6 +1,10 @@
 module github.com/rocket-crm/inventory
 
-replace github.com/rocker-crm/shared/ => ../shared
+replace (
+	github.com/rocker-crm/shared/ => ../shared
+	github.com/rocker-crm/platform/ => ../platform
+)
+
 
 go 1.24.6
 
