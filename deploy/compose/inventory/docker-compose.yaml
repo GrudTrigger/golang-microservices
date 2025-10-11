@@ -1,19 +1,18 @@
 services:
 
   mongo-inventory:
-    image: mongo:7.0.5
+    image: ${MONGO_IMAGE_NAME}
 
     container_name: mongo-inventory
 
-    environment:
-      MONGO_INITDB_DATABASE: inventory-service
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: 123
+    env_file:
+      - .env
+
     volumes:
       - mongo_inventory_data:/data/db
 
     ports:
-      - "27017:27017"
+      - "${EXTERNAL_MONGO_PORT}:27017"
 
 
     healthcheck:

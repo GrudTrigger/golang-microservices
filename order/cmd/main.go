@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,13 +15,13 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
 	ordersV1 "github.com/rocker-crm/shared/pkg/openapi/orders/v1"
 	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	orderAPI "github.com/rocket-crm/order/internal/api/order/v1"
 	grpcInventory "github.com/rocket-crm/order/internal/client/grpc/inventory/v1"
 	grpcPayment "github.com/rocket-crm/order/internal/client/grpc/payment/v1"
+	"github.com/rocket-crm/order/internal/config"
 	"github.com/rocket-crm/order/internal/migrator"
 	orderRepository "github.com/rocket-crm/order/internal/repository/order"
 	orderService "github.com/rocket-crm/order/internal/service/order"
@@ -30,25 +30,19 @@ import (
 )
 
 const (
-	httpPort          = "8080"
-	inventoryAddress  = "localhost:50051"
-	paymentAddress    = "localhost:50052"
-	readHeaderTimeout = 5 * time.Second
+	configPath        = "../deploy/compose/order/.env"
 	shutdownTimeout   = 10 * time.Second
+	readHeaderTimeout = 5 * time.Second
 )
 
 func main() {
+	err := config.Load(configPath)
+	if err != nil {
+		panic(fmt.Errorf("failed to load config: %w", err))
+	}
 	ctx := context.Background()
 
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Printf("failed to load .env file: %v\n", err)
-		return
-	}
-
-	dbURI := os.Getenv("DB_URI")
-
-	conn, err := pgx.Connect(ctx, dbURI)
+	conn, err := pgx.Connect(ctx, config.AppConfig().Postgres.URI())
 	if err != nil {
 		log.Printf("failed to connect to database: %v\n", err)
 		return
@@ -66,9 +60,8 @@ func main() {
 		log.Printf("База данных недоступна: %v\n", err)
 		return
 	}
-
-	migrationsDir := os.Getenv("MIGRATIONS_DIR")
-	migratorRunner := migrator.NewMigrator(stdlib.OpenDB(*conn.Config().Copy()), migrationsDir)
+	fmt.Println(config.AppConfig().Postgres.MigrationDir())
+	migratorRunner := migrator.NewMigrator(stdlib.OpenDB(*conn.Config().Copy()), config.AppConfig().Postgres.MigrationDir())
 
 	err = migratorRunner.Up()
 	if err != nil {
@@ -77,7 +70,7 @@ func main() {
 	}
 
 	// создает коннект до микросервиса inventory
-	connInventory, err := grpc.NewClient(inventoryAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connInventory, err := grpc.NewClient(config.AppConfig().OrderHttp.InventoryClientAddress(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("failed to connect: %v\n", err)
 		return
@@ -91,7 +84,7 @@ func main() {
 	}()
 
 	// создаем коннект до микросервиса payment
-	connPayment, err := grpc.NewClient(paymentAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	connPayment, err := grpc.NewClient(config.AppConfig().OrderHttp.PaymentClientAddress(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Printf("failed to connect: %v\n", err)
 		return
@@ -133,7 +126,7 @@ func main() {
 
 	// Запускаем HTTP-сервер
 	server := &http.Server{
-		Addr:              net.JoinHostPort("localhost", httpPort),
+		Addr:              config.AppConfig().OrderHttp.Address(),
 		Handler:           r,
 		ReadHeaderTimeout: readHeaderTimeout, // Защита от Slowloris атак - тип DDoS-атаки, при которой
 		// атакующий умышленно медленно отправляет HTTP-заголовки, удерживая соединения открытыми и истощая
@@ -143,7 +136,7 @@ func main() {
 
 	// Запускаем сервер в отдельной горутине
 	go func() {
-		log.Printf("🚀 HTTP-сервер запущен на порту %s\n", httpPort)
+		log.Printf("🚀 HTTP-сервер запущен на порту %s\n", config.AppConfig().OrderHttp.Address())
 		err = server.ListenAndServe()
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Printf("❌ Ошибка запуска сервера: %v\n", err)

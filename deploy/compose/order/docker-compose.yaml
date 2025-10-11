@@ -3,15 +3,13 @@ services:
     image: postgres:17.0-alpine3.20
     container_name: postgres-order
 
-    environment:
-      POSTGRES_DB: order-service
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 123
+    env_file:
+      - .env
 
     volumes:
       - postgres_order_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${EXTERNAL_POSTGRES_PORT}:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U order-service-user -d order-service" ]
       interval: 10s

@@ -21,7 +21,6 @@ func (r *repository) Update(ctx context.Context, uuid, transactionUuid, paymentM
 	if paymentMethod != "" {
 		order.PaymentMethod = ordersV1.NewOptString(paymentMethod)
 	}
-
 	idInt, err := strconv.Atoi(uuid)
 	if err != nil {
 		return "", err
