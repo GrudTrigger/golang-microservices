@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-
 	"os/signal"
 	"syscall"
 	"time"
@@ -12,7 +11,6 @@ import (
 	"github.com/rocker-crm/platform/pkg/logger"
 	"github.com/rocket-crm/order/internal/app"
 	"github.com/rocket-crm/order/internal/config"
-
 	"go.uber.org/zap"
 )
 

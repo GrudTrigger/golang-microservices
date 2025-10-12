@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"time"
 
@@ -19,7 +18,6 @@ import (
 type App struct {
 	diContainer *diContainer
 	httpServer  *ordersV1.Server
-	listener    net.Listener
 	server      *http.Server
 }
 
