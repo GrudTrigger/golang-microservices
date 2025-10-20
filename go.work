@@ -5,6 +5,7 @@ use (
 	./order
 	./inventory
 	./payment
+	./assembly
 	./shared
 	./platform
 )
