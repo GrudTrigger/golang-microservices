@@ -12,7 +12,7 @@ type service struct {
 	orderRecorderConsumer kafka.Consumer
 }
 
-func NewService(orderRecorderConsumer kafka.Consumer) *service {
+func NewConsumerService(orderRecorderConsumer kafka.Consumer) *service {
 	return &service{
 		orderRecorderConsumer: orderRecorderConsumer,
 	}
