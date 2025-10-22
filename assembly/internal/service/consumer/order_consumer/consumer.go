@@ -3,6 +3,7 @@ package order_consumer
 import (
 	"context"
 
+	serviceInterface "github.com/rocker-crm/assembly/internal/service"
 	"github.com/rocker-crm/platform/pkg/kafka"
 	"github.com/rocker-crm/platform/pkg/logger"
 	"go.uber.org/zap"
@@ -10,11 +11,13 @@ import (
 
 type service struct {
 	orderRecorderConsumer kafka.Consumer
+	shipProducer          serviceInterface.ProducerService
 }
 
-func NewConsumerService(orderRecorderConsumer kafka.Consumer) *service {
+func NewConsumerService(orderRecorderConsumer kafka.Consumer, shipProducer serviceInterface.ProducerService) *service {
 	return &service{
 		orderRecorderConsumer: orderRecorderConsumer,
+		shipProducer:          shipProducer,
 	}
 }
 

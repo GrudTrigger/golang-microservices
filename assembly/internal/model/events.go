@@ -7,3 +7,10 @@ type OrderPaidEvent struct {
 	PaymentMethod   string
 	TransactionUuid string
 }
+
+type ShipAssembledEvent struct {
+	EventUuid string
+	OrderUuid string
+	UserUuid  string
+	BuildTime int64
+}
