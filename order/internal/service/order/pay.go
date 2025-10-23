@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 
+	genUuid "github.com/google/uuid"
 	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	"github.com/rocket-crm/order/internal/model"
 )
@@ -22,5 +23,15 @@ func (s *service) PayOrder(ctx context.Context, paymentMethod, orderUuid string)
 		return "", model.ErrOrderNotFound
 	}
 
+	err = s.producer.ProducerOrderPaidRecorder(ctx, model.OrderPaidEvent{
+		EventUuid: genUuid.NewString(),
+		OrderUuid: order.OrderUUID,
+		UserUuid: order.UserUUID,
+		PaymentMethod: order.PaymentMethod.Value,
+		TransactionUuid:transactionUuid,
+	})
+	if err != nil {
+		return "", err
+	}
 	return transactionUuid, nil
 }

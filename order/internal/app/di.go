@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/IBM/sarama"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/rocker-crm/platform/pkg/closer"
+	wrappedKafka "github.com/rocker-crm/platform/pkg/kafka"
 	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	orderAPI "github.com/rocket-crm/order/internal/api/order/v1"
@@ -32,6 +34,9 @@ type diContainer struct {
 	inventoryClient grpcClient.InventoryClient
 	paymentClient   grpcClient.PaymentClient
 
+	syncProducer sarama.SyncProducer
+	orderPaidProducer wrappedKafka.Producer
+	orderPaidService service.ProducerService
 	postgresDb *pgx.Conn
 }
 
@@ -119,3 +124,9 @@ func (d *diContainer) PostgresDb(ctx context.Context) *pgx.Conn {
 	}
 	return d.postgresDb
 }
+
+// func (d *diContainer) SyncProducer() sarama.SyncProducer {
+// 	if d.syncProducer == nil {
+// 		sarama.NewSyncProducer(config.AppConfig().)
+// 	}
+// }

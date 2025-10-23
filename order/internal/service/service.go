@@ -13,3 +13,7 @@ type OrderService interface {
 	PayOrder(ctx context.Context, paymentMethod, orderUuid string) (string, error)
 	CancelOrder(ctx context.Context, orderUuid string) (ordersV1.CancelOrderRes, error)
 }
+
+type ProducerService interface {
+	ProducerOrderPaidRecorder(ctx context.Context, event model.OrderPaidEvent) error
+}
