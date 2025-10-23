@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/rocker-crm/platform/pkg/closer"
 	wrappedKafka "github.com/rocker-crm/platform/pkg/kafka"
+	wrappedKafkaProducer "github.com/rocker-crm/platform/pkg/kafka/producer"
+	"github.com/rocker-crm/platform/pkg/logger"
 	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	orderAPI "github.com/rocket-crm/order/internal/api/order/v1"
@@ -21,6 +23,7 @@ import (
 	"github.com/rocket-crm/order/internal/repository/order"
 	"github.com/rocket-crm/order/internal/service"
 	orderService "github.com/rocket-crm/order/internal/service/order"
+	orderPaid "github.com/rocket-crm/order/internal/service/producer/order_paid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -34,10 +37,10 @@ type diContainer struct {
 	inventoryClient grpcClient.InventoryClient
 	paymentClient   grpcClient.PaymentClient
 
-	syncProducer sarama.SyncProducer
+	syncProducer      sarama.SyncProducer
 	orderPaidProducer wrappedKafka.Producer
-	orderPaidService service.ProducerService
-	postgresDb *pgx.Conn
+	orderPaidService  service.ProducerService
+	postgresDb        *pgx.Conn
 }
 
 func NewDiContainer() *diContainer {
@@ -53,7 +56,7 @@ func (d *diContainer) OrderV1API(ctx context.Context) orderAPI.API {
 
 func (d *diContainer) Service(ctx context.Context) service.OrderService {
 	if d.ordersService == nil {
-		d.ordersService = orderService.NewService(d.Repository(ctx), d.InventoryClient(ctx), d.PaymentClient(ctx))
+		d.ordersService = orderService.NewService(d.Repository(ctx), d.InventoryClient(ctx), d.PaymentClient(ctx), d.OrderPaidService())
 	}
 	return d.ordersService
 }
@@ -125,8 +128,37 @@ func (d *diContainer) PostgresDb(ctx context.Context) *pgx.Conn {
 	return d.postgresDb
 }
 
-// func (d *diContainer) SyncProducer() sarama.SyncProducer {
-// 	if d.syncProducer == nil {
-// 		sarama.NewSyncProducer(config.AppConfig().)
-// 	}
-// }
+func (d *diContainer) SyncProducer() sarama.SyncProducer {
+	if d.syncProducer == nil {
+		p, err := sarama.NewSyncProducer(
+			config.AppConfig().Kafka.Brokers(),
+			config.AppConfig().Producer.Config(),
+		)
+		if err != nil {
+			panic(fmt.Sprintf("failed to create sync producer: %s\n", err.Error()))
+		}
+		closer.AddNamed("Kafka sync producer", func(ctx context.Context) error {
+			return p.Close()
+		})
+		d.syncProducer = p
+	}
+	return d.syncProducer
+}
+
+func (d *diContainer) OrderPaidProducer() wrappedKafka.Producer {
+	if d.orderPaidProducer == nil {
+		d.orderPaidProducer = wrappedKafkaProducer.NewProducer(
+			d.SyncProducer(),
+			config.AppConfig().Producer.Topic(),
+			logger.Logger(),
+		)
+	}
+	return d.orderPaidProducer
+}
+
+func (d *diContainer) OrderPaidService() service.ProducerService {
+	if d.orderPaidService == nil {
+		d.orderPaidService = orderPaid.NewService(d.OrderPaidProducer())
+	}
+	return d.orderPaidService
+}

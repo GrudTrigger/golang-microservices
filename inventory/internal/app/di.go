@@ -62,7 +62,6 @@ func (d *diContainer) MongoClient(ctx context.Context) *mongo.Client {
 		if err != nil {
 			panic(fmt.Sprintf("failed to ping MongoDB: %v\n", err))
 		}
-
 		closer.AddNamed("Mongo DB client", func(ctx context.Context) error {
 			return client.Disconnect(ctx)
 		})

@@ -6,14 +6,14 @@ import (
 )
 
 type orderPaidProducerEnvConfig struct {
-	TopicName string `env:"ORDER_ASSEMBLED_TOPIC_NAME,required"`
+	TopicName string `env:"ORDER_PAID_TOPIC_NAME,required"`
 }
 
 type orderPaidProducerConfig struct {
 	row orderPaidProducerEnvConfig
 }
 
-func NewShipAssembledProducerConfig() (*orderPaidProducerConfig, error) {
+func NewOrderPaidProducerConfig() (*orderPaidProducerConfig, error) {
 	var row orderPaidProducerEnvConfig
 	if err := env.Parse(&row); err != nil {
 		return nil, err

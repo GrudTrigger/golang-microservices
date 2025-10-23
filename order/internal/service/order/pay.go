@@ -24,14 +24,15 @@ func (s *service) PayOrder(ctx context.Context, paymentMethod, orderUuid string)
 	}
 
 	err = s.producer.ProducerOrderPaidRecorder(ctx, model.OrderPaidEvent{
-		EventUuid: genUuid.NewString(),
-		OrderUuid: order.OrderUUID,
-		UserUuid: order.UserUUID,
-		PaymentMethod: order.PaymentMethod.Value,
-		TransactionUuid:transactionUuid,
+		EventUuid:       genUuid.NewString(),
+		OrderUuid:       order.OrderUUID,
+		UserUuid:        order.UserUUID,
+		PaymentMethod:   order.PaymentMethod.Value,
+		TransactionUuid: transactionUuid,
 	})
 	if err != nil {
 		return "", err
 	}
+
 	return transactionUuid, nil
 }

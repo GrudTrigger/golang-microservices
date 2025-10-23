@@ -11,6 +11,9 @@ type config struct {
 	Logger    LoggerConfig
 	OrderHttp OrderHttpConfig
 	Postgres  PostgresConfig
+	Kafka     KafkaConfig
+	Producer  OrderPaidProducerConfig
+	Consumer  ShipAssembledConsumerConfig
 }
 
 func Load(path ...string) error {
@@ -34,10 +37,28 @@ func Load(path ...string) error {
 		return err
 	}
 
+	kafka, err := env.NewKafkaConfig()
+	if err != nil {
+		return err
+	}
+
+	producer, err := env.NewOrderPaidProducerConfig()
+	if err != nil {
+		return err
+	}
+
+	consumer, err := env.NewShipAssembledConsumerConfig()
+	if err != nil {
+		return err
+	}
+
 	appConfig = &config{
 		Logger:    logger,
 		Postgres:  postgres,
 		OrderHttp: orderHttp,
+		Kafka:     kafka,
+		Producer:  producer,
+		Consumer:  consumer,
 	}
 	return nil
 }

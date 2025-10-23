@@ -86,8 +86,8 @@ func (a *App) initConfigServer(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initHTTPServer(_ context.Context) error {
-	ordersServer, err := ordersV1.NewServer(a.diContainer.orderV1API)
+func (a *App) initHTTPServer(ctx context.Context) error {
+	ordersServer, err := ordersV1.NewServer(a.diContainer.OrderV1API(ctx))
 	if err != nil {
 		return err
 	}

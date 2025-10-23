@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/rocket-crm/inventory/internal/model"
@@ -54,5 +55,6 @@ func (r *repository) ListParts(ctx context.Context, filter model.PartsFilter) ([
 	if err = cursor.All(ctx, &result); err != nil {
 		return nil, err
 	}
+	fmt.Println("result", result)
 	return converter.PartToModelSlice(result), nil
 }
