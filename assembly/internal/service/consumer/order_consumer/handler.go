@@ -2,7 +2,6 @@ package order_consumer
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/rocker-crm/assembly/internal/converter/kafka/decoder"
@@ -19,7 +18,6 @@ func (s *service) OrderHandler(ctx context.Context, msg kafka.Message) error {
 		return err
 	}
 	time.Sleep(time.Second * 10)
-	fmt.Println(event)
 
 	newEvent := model.ShipAssembledEvent{
 		EventUuid: event.EventUuid,
