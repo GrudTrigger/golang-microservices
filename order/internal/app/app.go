@@ -36,8 +36,8 @@ func (a *App) initDeps(ctx context.Context) error {
 		a.initDI,
 		a.initLogger,
 		a.initCloser,
-		a.initConfigServer,
 		a.initHTTPServer,
+		a.initConfigServer,
 	}
 
 	for _, f := range inits {
