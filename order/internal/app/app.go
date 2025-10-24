@@ -13,6 +13,7 @@ import (
 	"github.com/rocker-crm/platform/pkg/logger"
 	ordersV1 "github.com/rocker-crm/shared/pkg/openapi/orders/v1"
 	"github.com/rocket-crm/order/internal/config"
+	"go.uber.org/zap"
 )
 
 type App struct {
@@ -107,6 +108,45 @@ func (a *App) runHTTPServer(ctx context.Context) error {
 	return nil
 }
 
+func (a *App) runConsumer(ctx context.Context) error {
+	logger.Info(ctx, "🚀 Ship-Assembled Kafka consumer running")
+
+	err := a.diContainer.ShipAssembledConsumer(ctx).RunConsumer(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (a *App) Run(ctx context.Context) error {
-	return a.runHTTPServer(ctx)
+
+	errCh := make(chan error, 2)
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	go func() {
+		if err := a.runConsumer(ctx); err != nil {
+			errCh <- errors.Errorf("consumer crashed: %v", err)
+		}
+	}()
+
+	go func() {
+		if err := a.runHTTPServer(ctx); err != nil {
+			errCh <- errors.Errorf("HTTP server crashed: %v", err)
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		logger.Info(ctx, "Shutdown signal received")
+	case err := <-errCh:
+		logger.Error(ctx, "Component crashed, shutting down", zap.Error(err))
+		cancel()
+		<-ctx.Done()
+		return err
+
+	}
+	return nil
 }

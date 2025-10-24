@@ -17,3 +17,7 @@ type OrderService interface {
 type ProducerService interface {
 	ProducerOrderPaidRecorder(ctx context.Context, event model.OrderPaidEvent) error
 }
+
+type ConsumerService interface {
+	RunConsumer(ctx context.Context) error
+}

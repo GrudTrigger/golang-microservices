@@ -583,13 +583,13 @@ tasks:
             ORDER_STATUS=$(echo $ORDER_INFO_RESPONSE | grep -o '"status": "[^"]*' | cut -d'"' -f4)
           fi
           
-          # Проверяем, что статус изменился на ASSEMBLED
-          if [[ "$ORDER_STATUS" != *"ASSEMBLED"* ]]; then
-            echo "❌ Статус заказа не изменился на ASSEMBLED после ожидания. Текущий статус: $ORDER_STATUS"
+          # Проверяем, что статус изменился на COMPLETED
+          if [[ "$ORDER_STATUS" != *"COMPLETED"* ]]; then
+            echo "❌ Статус заказа не изменился на COMPLETED после ожидания. Текущий статус: $ORDER_STATUS"
             exit 1
           fi
           
-          echo "✅ Статус заказа после ожидания сборки: $ORDER_STATUS (ожидали ASSEMBLED)"
+          echo "✅ Статус заказа после ожидания сборки: $ORDER_STATUS (ожидали COMPLETED)"
         fi
         
         echo

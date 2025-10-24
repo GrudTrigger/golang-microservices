@@ -9,8 +9,10 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/rocker-crm/platform/pkg/closer"
 	wrappedKafka "github.com/rocker-crm/platform/pkg/kafka"
+	wrappedKafkaConsumer "github.com/rocker-crm/platform/pkg/kafka/consumer"
 	wrappedKafkaProducer "github.com/rocker-crm/platform/pkg/kafka/producer"
 	"github.com/rocker-crm/platform/pkg/logger"
+	kafkaMiddleware "github.com/rocker-crm/platform/pkg/middleware/kafka"
 	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	orderAPI "github.com/rocket-crm/order/internal/api/order/v1"
@@ -22,6 +24,7 @@ import (
 	"github.com/rocket-crm/order/internal/repository"
 	"github.com/rocket-crm/order/internal/repository/order"
 	"github.com/rocket-crm/order/internal/service"
+	shipConsumer "github.com/rocket-crm/order/internal/service/consumer/ship_assembly"
 	orderService "github.com/rocket-crm/order/internal/service/order"
 	orderPaid "github.com/rocket-crm/order/internal/service/producer/order_paid"
 	"google.golang.org/grpc"
@@ -40,7 +43,12 @@ type diContainer struct {
 	syncProducer      sarama.SyncProducer
 	orderPaidProducer wrappedKafka.Producer
 	orderPaidService  service.ProducerService
-	postgresDb        *pgx.Conn
+
+	consumerGroup                 sarama.ConsumerGroup
+	shipAssembledConsumer         service.ConsumerService
+	shipAssembledRecorderConsumer wrappedKafka.Consumer
+
+	postgresDb *pgx.Conn
 }
 
 func NewDiContainer() *diContainer {
@@ -161,4 +169,41 @@ func (d *diContainer) OrderPaidService() service.ProducerService {
 		d.orderPaidService = orderPaid.NewService(d.OrderPaidProducer())
 	}
 	return d.orderPaidService
+}
+
+func (d *diContainer) ConsumerGroup() sarama.ConsumerGroup {
+	if d.consumerGroup == nil {
+		consumerGroup, err := sarama.NewConsumerGroup(
+			config.AppConfig().Kafka.Brokers(),
+			config.AppConfig().Consumer.GroupID(),
+			config.AppConfig().Consumer.Config(),
+		)
+		if err != nil {
+			panic(fmt.Sprintf("failed to create consumer group: %s\n", err.Error()))
+		}
+		closer.AddNamed("Kafka consumer group", func(ctx context.Context) error {
+			return d.consumerGroup.Close()
+		})
+		d.consumerGroup = consumerGroup
+	}
+	return d.consumerGroup
+}
+
+func (d *diContainer) ShipAssembledRecorderConsumer() wrappedKafka.Consumer {
+	if d.shipAssembledRecorderConsumer == nil {
+		d.shipAssembledRecorderConsumer = wrappedKafkaConsumer.NewConsumer(
+			d.ConsumerGroup(),
+			[]string{config.AppConfig().Consumer.Topic()},
+			logger.Logger(),
+			kafkaMiddleware.Logging(logger.Logger()),
+		)
+	}
+	return d.shipAssembledRecorderConsumer
+}
+
+func (d *diContainer) ShipAssembledConsumer(ctx context.Context) service.ConsumerService {
+	if d.shipAssembledConsumer == nil {
+		d.shipAssembledConsumer = shipConsumer.NewService(d.ShipAssembledRecorderConsumer(), d.Repository(ctx))
+	}
+	return d.shipAssembledConsumer
 }
