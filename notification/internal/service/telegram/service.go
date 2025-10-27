@@ -39,8 +39,10 @@ type soundValue struct {
 	Value bool
 }
 
-var orderPaidTemplate = template.Must(template.ParseFS(templateOrderPaidFS, "templates/order_paid_notification.tmpl"))
-var shipAssembledTemplate = template.Must(template.ParseFS(templateShipAssembled, "templates/ship_assembled_notification.tmpl"))
+var (
+	orderPaidTemplate     = template.Must(template.ParseFS(templateOrderPaidFS, "templates/order_paid_notification.tmpl"))
+	shipAssembledTemplate = template.Must(template.ParseFS(templateShipAssembled, "templates/ship_assembled_notification.tmpl"))
+)
 
 type service struct {
 	telegramClient client.TelegramClient

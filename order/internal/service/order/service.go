@@ -10,7 +10,7 @@ type service struct {
 	orderRepository repository.OrderRepository
 	inventoryClient grpc.InventoryClient
 	paymentClient   grpc.PaymentClient
-	producer serviceInterface.ProducerService
+	producer        serviceInterface.ProducerService
 }
 
 func NewService(orderRepository repository.OrderRepository, inventoryClient grpc.InventoryClient, paymentClient grpc.PaymentClient, producer serviceInterface.ProducerService) *service {
@@ -18,6 +18,6 @@ func NewService(orderRepository repository.OrderRepository, inventoryClient grpc
 		orderRepository: orderRepository,
 		inventoryClient: inventoryClient,
 		paymentClient:   paymentClient,
-		producer: producer,
+		producer:        producer,
 	}
 }

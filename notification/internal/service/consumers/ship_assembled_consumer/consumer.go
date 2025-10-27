@@ -11,13 +11,13 @@ import (
 
 type service struct {
 	shipRecorderConsumer kafka.Consumer
-	telegramService notificationService.TelegramService
+	telegramService      notificationService.TelegramService
 }
 
 func NewShipAssembledConsumerService(shipRecorderConsumer kafka.Consumer, telegramService notificationService.TelegramService) *service {
 	return &service{
 		shipRecorderConsumer: shipRecorderConsumer,
-		telegramService: telegramService,
+		telegramService:      telegramService,
 	}
 }
 

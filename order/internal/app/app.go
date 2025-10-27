@@ -120,7 +120,6 @@ func (a *App) runConsumer(ctx context.Context) error {
 }
 
 func (a *App) Run(ctx context.Context) error {
-
 	errCh := make(chan error, 2)
 
 	ctx, cancel := context.WithCancel(ctx)

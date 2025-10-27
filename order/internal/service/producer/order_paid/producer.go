@@ -20,12 +20,11 @@ func NewService(orderPaidProducer kafka.Producer) *service {
 }
 
 func (s *service) ProducerOrderPaidRecorder(ctx context.Context, event model.OrderPaidEvent) error {
-	
 	msg := &eventsV1.OrderPaidRecorder{
-		EventUuid: event.EventUuid,
-		OrderUuid: event.OrderUuid,
-		UserUuid: event.UserUuid,
-		PaymentMethod: event.PaymentMethod,
+		EventUuid:       event.EventUuid,
+		OrderUuid:       event.OrderUuid,
+		UserUuid:        event.UserUuid,
+		PaymentMethod:   event.PaymentMethod,
 		TransactionUuid: event.TransactionUuid,
 	}
 
