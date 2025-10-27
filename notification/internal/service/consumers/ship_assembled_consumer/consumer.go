@@ -3,6 +3,7 @@ package ship_assembled_consumer
 import (
 	"context"
 
+	notificationService "github.com/rocker-crm/notifacation/internal/service"
 	"github.com/rocker-crm/platform/pkg/kafka"
 	"github.com/rocker-crm/platform/pkg/logger"
 	"go.uber.org/zap"
@@ -10,11 +11,13 @@ import (
 
 type service struct {
 	shipRecorderConsumer kafka.Consumer
+	telegramService notificationService.TelegramService
 }
 
-func NewShipAssembledConsumerService(shipRecorderConsumer kafka.Consumer) *service {
+func NewShipAssembledConsumerService(shipRecorderConsumer kafka.Consumer, telegramService notificationService.TelegramService) *service {
 	return &service{
 		shipRecorderConsumer: shipRecorderConsumer,
+		telegramService: telegramService,
 	}
 }
 

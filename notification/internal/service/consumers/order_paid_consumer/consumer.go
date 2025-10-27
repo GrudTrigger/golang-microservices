@@ -3,6 +3,7 @@ package order_paid_consumer
 import (
 	"context"
 
+	notificationService "github.com/rocker-crm/notifacation/internal/service"
 	"github.com/rocker-crm/platform/pkg/kafka"
 	"github.com/rocker-crm/platform/pkg/logger"
 	"go.uber.org/zap"
@@ -10,11 +11,13 @@ import (
 
 type service struct {
 	orderRecorderConsumer kafka.Consumer
+	telegramService notificationService.TelegramService
 }
 
-func NewOrderPaidConsumerService(orderRecorderConsumer kafka.Consumer) *service {
+func NewOrderPaidConsumerService(orderRecorderConsumer kafka.Consumer, telegramService notificationService.TelegramService) *service {
 	return &service{
 		orderRecorderConsumer: orderRecorderConsumer,
+		telegramService: telegramService,
 	}
 }
 

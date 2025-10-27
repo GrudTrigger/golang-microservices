@@ -2,7 +2,6 @@ package ship_assembled_consumer
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/rocker-crm/notifacation/internal/converter/decoder"
 	"github.com/rocker-crm/platform/pkg/kafka"
@@ -16,6 +15,10 @@ func (s *service) ShipAssembledHandler(ctx context.Context, msg kafka.Message) e
 		logger.Error(ctx, "Failed to decode OrderPaidRecorded", zap.Error(err))
 		return err
 	}
-	fmt.Println(event)
+	err = s.telegramService.SendShipAssembledNotification(ctx, event)
+	if err != nil {
+		logger.Error(ctx, "Failed to send message to telegram", zap.Error(err))
+		return err
+	}
 	return nil
 }
