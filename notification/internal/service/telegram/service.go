@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const chatID = 123123213 //Узнать чат id бота
+const chatID = 698911588
 
 //go:embed templates/order_paid_notification.tmpl
 var templateOrderPaidFS embed.FS
@@ -69,10 +69,10 @@ func (s *service) SendOrderPaidNotification(ctx context.Context, orderEvent mode
 
 func (s *service) buildOrderPaidMessage(order model.OrderPaidEvent) (string, error) {
 	data := orderPaidTemplateData{
-		EventUuid: order.EventUuid,
-		OrderUuid: order.OrderUuid,
-		UserUuid: order.UserUuid,
-		PaymentMethod: order.PaymentMethod,
+		EventUuid:       order.EventUuid,
+		OrderUuid:       order.OrderUuid,
+		UserUuid:        order.UserUuid,
+		PaymentMethod:   order.PaymentMethod,
 		TransactionUuid: order.TransactionUuid,
 	}
 
@@ -100,10 +100,10 @@ func (s *service) SendShipAssembledNotification(ctx context.Context, shipEvent m
 }
 
 func (s *service) buildShipAssembledMessage(shipAssembled model.ShipAssembledEvent) (string, error) {
-	data := shipAssembledTemplateData {
+	data := shipAssembledTemplateData{
 		EventUuid: shipAssembled.EventUuid,
 		OrderUuid: shipAssembled.OrderUuid,
-		UserUuid: shipAssembled.UserUuid,
+		UserUuid:  shipAssembled.UserUuid,
 		BuildTime: shipAssembled.BuildTime,
 	}
 
@@ -114,4 +114,3 @@ func (s *service) buildShipAssembledMessage(shipAssembled model.ShipAssembledEve
 	}
 	return buf.String(), nil
 }
-

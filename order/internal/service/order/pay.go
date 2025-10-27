@@ -23,11 +23,16 @@ func (s *service) PayOrder(ctx context.Context, paymentMethod, orderUuid string)
 		return "", model.ErrOrderNotFound
 	}
 
+	updatedOrder, err := s.orderRepository.GetByUuid(ctx, orderUuid)
+	if err != nil {
+		return "", model.ErrOrderNotFound
+	}
+
 	err = s.producer.ProducerOrderPaidRecorder(ctx, model.OrderPaidEvent{
 		EventUuid:       genUuid.NewString(),
-		OrderUuid:       order.OrderUUID,
-		UserUuid:        order.UserUUID,
-		PaymentMethod:   order.PaymentMethod.Value,
+		OrderUuid:       updatedOrder.OrderUUID,
+		UserUuid:        updatedOrder.UserUUID,
+		PaymentMethod:   updatedOrder.PaymentMethod.Value,
 		TransactionUuid: transactionUuid,
 	})
 	if err != nil {

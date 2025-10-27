@@ -10,6 +10,8 @@ import (
 	"github.com/rocker-crm/notifacation/internal/client/http/telegram"
 	"github.com/rocker-crm/notifacation/internal/config"
 	services "github.com/rocker-crm/notifacation/internal/service"
+	"github.com/rocker-crm/notifacation/internal/service/consumers/order_paid_consumer"
+	"github.com/rocker-crm/notifacation/internal/service/consumers/ship_assembled_consumer"
 	tgService "github.com/rocker-crm/notifacation/internal/service/telegram"
 	"github.com/rocker-crm/platform/pkg/closer"
 	wrappedKafka "github.com/rocker-crm/platform/pkg/kafka"
@@ -20,16 +22,16 @@ import (
 
 type diContainer struct {
 	orderRecorderConsumer wrappedKafka.Consumer
-	shipRecorderConsumer wrappedKafka.Consumer
+	shipRecorderConsumer  wrappedKafka.Consumer
 
 	orderConsumerGroup sarama.ConsumerGroup
-	shipConsumerGroup sarama.ConsumerGroup
+	shipConsumerGroup  sarama.ConsumerGroup
 
-	orderPaidConsumerService services.ConsumerService
+	orderPaidConsumerService     services.ConsumerService
 	shipAssembledConsumerService services.ConsumerService
 
-	telegramBot    *bot.Bot
-	telegramClient client.TelegramClient
+	telegramBot     *bot.Bot
+	telegramClient  client.TelegramClient
 	telegramService services.TelegramService
 }
 
@@ -37,14 +39,28 @@ func NewDiContainer() *diContainer {
 	return &diContainer{}
 }
 
+func (d *diContainer) OrderPaidConsumerService() services.ConsumerService {
+	if d.orderPaidConsumerService == nil {
+		d.orderPaidConsumerService = order_paid_consumer.NewOrderPaidConsumerService(d.OrderRecorderConsumer(), d.TelegramService())
+	}
+	return d.orderPaidConsumerService
+}
+
+func (d *diContainer) ShipAssembledConsumerService() services.ConsumerService {
+	if d.shipAssembledConsumerService == nil {
+		d.shipAssembledConsumerService = ship_assembled_consumer.NewShipAssembledConsumerService(d.ShipRecorderConsumer(), d.TelegramService())
+	}
+	return d.shipAssembledConsumerService
+}
+
 func (d *diContainer) OrderRecorderConsumer() wrappedKafka.Consumer {
 	if d.orderRecorderConsumer == nil {
 		d.orderRecorderConsumer = wrappedKafkaConsumer.NewConsumer(
 			d.OrderConsumerGroup(),
 			[]string{
-				config.AppConfig().OrderPaidConsumer.Topic(),			
+				config.AppConfig().OrderPaidConsumer.Topic(),
 			},
-			logger.Logger(),	
+			logger.Logger(),
 			kafkaMiddleware.Logging(logger.Logger()),
 		)
 	}
@@ -74,9 +90,9 @@ func (d *diContainer) ShipRecorderConsumer() wrappedKafka.Consumer {
 		d.shipRecorderConsumer = wrappedKafkaConsumer.NewConsumer(
 			d.ShipConsumerGroup(),
 			[]string{
-				config.AppConfig().ShipAssembledConsumer.Topic(),			
+				config.AppConfig().ShipAssembledConsumer.Topic(),
 			},
-			logger.Logger(),	
+			logger.Logger(),
 			kafkaMiddleware.Logging(logger.Logger()),
 		)
 	}
