@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package auth.v1;
+
+option go_package = "github.com/rocket-crm/shared/pkg/proto/auth/v1;auth_v1";
+
+// PaymentService - предоставляет API для работы с сервисом авторизации
+service AuthService {
+  // Register - метод для регистрации пользователя
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  // Login - метод для аутентификации пользователя
+  rpc Login(LoginRequest) returns (LoginResponse);
+  // Whoami - метод для получения своих данных пользователем
+  rpc Whoami(WhoamiRequest) returns (WhoamiResponse);
+  // GetUser - метод для получения данных о пользователе
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+}
+
+// RegisterRequest - данные которые принимает Register
+message RegisterRequest {
+  string login = 1;
+  string password = 2;
+  repeated NotificationMethod notification_methods = 3;
+}
+// RegisterResponse - данные которые возвращает Register
+message RegisterResponse {
+  string user_uuid = 1;
+}
+// LoginRequest - данные которые принимает Login
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+// LoginResponse - данные которые возвращает Login
+message LoginResponse{
+  string session_uuid = 1;
+}
+// WhoamiRequest - данные которые принимает Whoami
+message WhoamiRequest {
+  string session_uuid = 1;
+}
+// WhoamiResponse - данные которые возвращает Whoaim
+message WhoamiResponse {
+  string user_uuid = 1;
+  string login = 2;
+  string email = 3;
+}
+// GetUserRequest - данные которые принимает GetUser
+message GetUserRequest {
+  string user_uuid = 1;
+}
+// GetUserResponse - данные которые возвращает GetUser
+message GetUserResponse {
+  string user_uuid = 1;
+  string login = 2;
+  string email = 3;
+  repeated NotificationMethod notification_methods = 4;
+}
+// NotificationMethod - тип данных для notification_methods
+message NotificationMethod {
+  string provider_name = 1;
+  string target = 2;
+}
