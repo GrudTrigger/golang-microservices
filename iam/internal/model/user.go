@@ -17,3 +17,15 @@ type UserSessionData struct {
 	Login    string `redis:"login"`
 	Email    string `redis:"email"`
 }
+
+type LoginUser struct {
+	Login    string
+	Password string
+}
+
+type GetUserResponse struct {
+	UserUuid           string
+	Login              string
+	Email              string
+	NotificationMethod []Notification
+}
