@@ -9,7 +9,7 @@ import (
 func (r *repository) Login(ctx context.Context, login string) (model.User, error) {
 	var user model.User
 
-	row := r.db.QueryRow(ctx, "SELECT login, password, email, notification_method FROM users WHERE login=$1", login)
+	row := r.db.QueryRow(ctx, "SELECT id, login, password, email, notification_method FROM users WHERE login=$1", login)
 	err := row.Scan(&user)
 	if err != nil {
 		return model.User{}, err
