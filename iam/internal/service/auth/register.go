@@ -6,7 +6,7 @@ import (
 	"github.com/rocket-crm/iam/internal/model"
 )
 
-func (s *service) Register(ctx context.Context, user model.User) (string, error) {
+func (s *service) Register(ctx context.Context, user model.RegisterUserRequest) (string, error) {
 	existedUser, err := s.userDb.Login(ctx, user.Login)
 	if err != nil {
 		return "", err
@@ -16,7 +16,7 @@ func (s *service) Register(ctx context.Context, user model.User) (string, error)
 		return "", model.AlreadyRegistered
 	}
 
-	uuid,err := s.userDb.Create(ctx, user)
+	uuid, err := s.userDb.Create(ctx, user)
 	if err != nil {
 		return "", err
 	}

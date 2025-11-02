@@ -1,7 +1,7 @@
 package model
 
 type User struct {
-	Id string
+	Id                 string
 	Login              string
 	Password           string
 	Email              string
@@ -27,6 +27,13 @@ type LoginUser struct {
 type GetUserResponse struct {
 	UserUuid           string
 	Login              string
+	Email              string
+	NotificationMethod []Notification
+}
+
+type RegisterUserRequest struct {
+	Login              string
+	Password           string
 	Email              string
 	NotificationMethod []Notification
 }
