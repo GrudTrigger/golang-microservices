@@ -5,8 +5,8 @@ create table users (
     login varchar not null,
     password varchar not null,
     email varchar not null unique,
-    notification_methods JSONB,
-)
+    notification_methods JSONB
+);
 -- +goose StatementEnd
 
 -- +goose Down

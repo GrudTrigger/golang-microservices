@@ -26,9 +26,11 @@ type RegisterRequest struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	Login               string                 `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
 	Password            string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	NotificationMethods []*NotificationMethod  `protobuf:"bytes,3,rep,name=notification_methods,json=notificationMethods,proto3" json:"notification_methods,omitempty"`
+	Email               string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	NotificationMethods []*NotificationMethod  `protobuf:"bytes,4,rep,name=notification_methods,json=notificationMethods,proto3" json:"notification_methods,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
+	NotificationMethod  []interface{}
 }
 
 func (x *RegisterRequest) Reset() {
@@ -71,6 +73,13 @@ func (x *RegisterRequest) GetLogin() string {
 func (x *RegisterRequest) GetPassword() string {
 	if x != nil {
 		return x.Password
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
 	}
 	return ""
 }
@@ -502,11 +511,12 @@ var File_auth_v1_auth_proto protoreflect.FileDescriptor
 
 const file_auth_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x12auth/v1/auth.proto\x12\aauth.v1\"\x93\x01\n" +
+	"\x12auth/v1/auth.proto\x12\aauth.v1\"\xa9\x01\n" +
 	"\x0fRegisterRequest\x12\x14\n" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12N\n" +
-	"\x14notification_methods\x18\x03 \x03(\v2\x1b.auth.v1.NotificationMethodR\x13notificationMethods\"/\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x14\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12N\n" +
+	"\x14notification_methods\x18\x04 \x03(\v2\x1b.auth.v1.NotificationMethodR\x13notificationMethods\"/\n" +
 	"\x10RegisterResponse\x12\x1b\n" +
 	"\tuser_uuid\x18\x01 \x01(\tR\buserUuid\"@\n" +
 	"\fLoginRequest\x12\x14\n" +

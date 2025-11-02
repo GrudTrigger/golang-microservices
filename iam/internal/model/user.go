@@ -9,8 +9,8 @@ type User struct {
 }
 
 type Notification struct {
-	ProviderName string
-	Target       string
+	ProviderName string `json:"provider_name"`
+	Target       string `json:"target"`
 }
 
 type UserSessionData struct {

@@ -9,10 +9,10 @@ create table orders (
     status varchar not null,
     created_at timestamp not null default now(),
     updated_at timestamp
-)
+);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-drop table order
+drop table orders
 -- +goose StatementEnd

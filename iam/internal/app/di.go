@@ -76,7 +76,6 @@ func (d *diContainer) PostgresDb(ctx context.Context) *pgx.Conn {
 		if err != nil {
 			panic(fmt.Errorf("failed to connect to database: %w", err))
 		}
-
 		migratorRunner := migrator.NewMigrator(stdlib.OpenDB(*conn.Config().Copy()), config.AppConfig().Postgres.MigrationDir())
 
 		err = migratorRunner.Up()
