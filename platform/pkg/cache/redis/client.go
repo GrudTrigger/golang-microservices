@@ -86,6 +86,7 @@ func (c *client) Get(ctx context.Context, key string) ([]byte, error) {
 func (c *client) HashSet(ctx context.Context, key string, values any) error {
 	return c.withConn(ctx, func(ctx context.Context, conn redigo.Conn) error {
 		_, err := conn.Do("HSET", redigo.Args{key}.AddFlat(values)...)
+		_, err = conn.Do("EXPIRE", key, int(time.Hour.Seconds()*24))
 		return err
 	})
 }

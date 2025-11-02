@@ -11,11 +11,9 @@ func (s *service) Register(ctx context.Context, user model.RegisterUserRequest) 
 	if err != nil {
 		return "", err
 	}
-
 	if existedUser.Login == user.Login {
 		return "", model.AlreadyRegistered
 	}
-
 	uuid, err := s.userDb.Create(ctx, user)
 	if err != nil {
 		return "", err

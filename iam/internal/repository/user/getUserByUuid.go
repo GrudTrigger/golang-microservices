@@ -10,7 +10,7 @@ func (r *repository) GetUserByUuid(ctx context.Context, userUuid string) (model.
 	var user model.User
 
 	row := r.db.QueryRow(ctx, "SELECT id, login, password, email, notification_methods FROM users WHERE id=$1", userUuid)
-	err := row.Scan(&user)
+	err := row.Scan(&user.Id, &user.Login, &user.Password, &user.Email, &user.NotificationMethod)
 	if err != nil {
 		return model.User{}, err
 	}
