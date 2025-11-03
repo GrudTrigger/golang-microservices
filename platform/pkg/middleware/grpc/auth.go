@@ -25,6 +25,12 @@ const (
 	sessionUUIDContextKey contextKey = "session-uuid"
 )
 
+type UserSessionData struct {
+	UserUuid string `redis:"user_uuid"`
+	Login    string `redis:"login"`
+	Email    string `redis:"email"`
+}
+
 // IAMClient это алиас для сгенерированного gRPC клиента
 type IAMClient = authV1.AuthServiceClient
 
@@ -80,19 +86,24 @@ func (i *AuthInterceptor) authenticate(ctx context.Context) (context.Context, er
 	whoamiRes, err := i.iamClient.Whoami(ctx, &authV1.WhoamiRequest{
 		SessionUuid: sessionUUID,
 	})
+	authUser := UserSessionData{
+		Login:    whoamiRes.Login,
+		Email:    whoamiRes.Email,
+		UserUuid: whoamiRes.UserUuid,
+	}
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("invalid session: %v", err))
 	}
 
 	// Добавляем пользователя и session UUID в контекст
-	authCtx := context.WithValue(ctx, userContextKey, whoamiRes.User)
+	authCtx := context.WithValue(ctx, userContextKey, authUser)
 	authCtx = context.WithValue(authCtx, sessionUUIDContextKey, sessionUUID)
 	return authCtx, nil
 }
 
 // GetUserFromContext извлекает пользователя из контекста
-func GetUserFromContext(ctx context.Context) (*commonV1.User, bool) {
-	user, ok := ctx.Value(userContextKey).(*commonV1.User)
+func GetUserFromContext(ctx context.Context) (*UserSessionData, bool) {
+	user, ok := ctx.Value(userContextKey).(*UserSessionData)
 	return user, ok
 }
 

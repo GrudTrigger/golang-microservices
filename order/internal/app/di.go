@@ -13,6 +13,7 @@ import (
 	wrappedKafkaProducer "github.com/rocker-crm/platform/pkg/kafka/producer"
 	"github.com/rocker-crm/platform/pkg/logger"
 	kafkaMiddleware "github.com/rocker-crm/platform/pkg/middleware/kafka"
+	authV1 "github.com/rocker-crm/shared/pkg/proto/auth/v1"
 	inventoryV1 "github.com/rocker-crm/shared/pkg/proto/inventory/v1"
 	paymentV1 "github.com/rocker-crm/shared/pkg/proto/payment/v1"
 	orderAPI "github.com/rocket-crm/order/internal/api/order/v1"
@@ -39,6 +40,7 @@ type diContainer struct {
 
 	inventoryClient grpcClient.InventoryClient
 	paymentClient   grpcClient.PaymentClient
+	authClient      authV1.AuthServiceClient
 
 	syncProducer      sarama.SyncProducer
 	orderPaidProducer wrappedKafka.Producer
@@ -67,6 +69,21 @@ func (d *diContainer) Service(ctx context.Context) service.OrderService {
 		d.ordersService = orderService.NewService(d.Repository(ctx), d.InventoryClient(ctx), d.PaymentClient(ctx), d.OrderPaidService())
 	}
 	return d.ordersService
+}
+
+func (d *diContainer) AuthClient() authV1.AuthServiceClient {
+	if d.authClient == nil {
+		connIam, err := grpc.NewClient(config.AppConfig().OrderHttp.IamClientAddress(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			panic(fmt.Errorf("failed to connect: %w", err))
+		}
+		closer.AddNamed("Auth Client", func(ctx context.Context) error {
+			return connIam.Close()
+		})
+		authClient := authV1.NewAuthServiceClient(connIam)
+		d.authClient = authClient
+	}
+	return d.authClient
 }
 
 func (d *diContainer) InventoryClient(_ context.Context) grpcClient.InventoryClient {

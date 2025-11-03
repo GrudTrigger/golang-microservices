@@ -11,6 +11,7 @@ import (
 	"github.com/go-faster/errors"
 	"github.com/rocker-crm/platform/pkg/closer"
 	"github.com/rocker-crm/platform/pkg/logger"
+	httpAuthMiddleware "github.com/rocker-crm/platform/pkg/middleware/http"
 	ordersV1 "github.com/rocker-crm/shared/pkg/openapi/orders/v1"
 	"github.com/rocket-crm/order/internal/config"
 	"go.uber.org/zap"
@@ -71,6 +72,9 @@ func (a *App) initConfigServer(_ context.Context) error {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(10 * time.Second))
+
+	authMiddleware := httpAuthMiddleware.NewAuthMiddleware(a.diContainer.AuthClient())
+	r.Use(authMiddleware.Handle)
 
 	// Монтируем обработчики OpenAPI
 	r.Mount("/", a.httpServer)

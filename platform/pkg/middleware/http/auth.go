@@ -4,9 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	grpcAuth "github.com/olezhek28/microservices-course-olezhek-solution/platform/pkg/middleware/grpc"
-	authV1 "github.com/olezhek28/microservices-course-olezhek-solution/shared/pkg/proto/auth/v1"
-	commonV1 "github.com/olezhek28/microservices-course-olezhek-solution/shared/pkg/proto/common/v1"
+	grpcAuth "github.com/rocker-crm/platform/pkg/middleware/grpc"
+	authV1 "github.com/rocker-crm/shared/pkg/proto/auth/v1"
 )
 
 const SessionUUIDHeader = "X-Session-Uuid"
@@ -44,12 +43,16 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 			writeErrorResponse(w, http.StatusUnauthorized, "INVALID_SESSION", "Authentication failed")
 			return
 		}
-
+		userAuth := grpcAuth.UserSessionData{
+			Login:    whoamiRes.Login,
+			Email:    whoamiRes.Email,
+			UserUuid: whoamiRes.UserUuid,
+		}
 		// Добавляем пользователя и session UUID в контекст используя функции из grpc middleware
 		ctx := r.Context()
 		ctx = grpcAuth.AddSessionUUIDToContext(ctx, sessionUUID)
 		// Также добавляем пользователя в контекст
-		ctx = context.WithValue(ctx, grpcAuth.GetUserContextKey(), whoamiRes.User)
+		ctx = context.WithValue(ctx, grpcAuth.GetUserContextKey(), userAuth)
 
 		// Передаем управление следующему handler
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -57,7 +60,7 @@ func (m *AuthMiddleware) Handle(next http.Handler) http.Handler {
 }
 
 // GetUserFromContext извлекает пользователя из контекста
-func GetUserFromContext(ctx context.Context) (*commonV1.User, bool) {
+func GetUserFromContext(ctx context.Context) (*grpcAuth.UserSessionData, bool) {
 	return grpcAuth.GetUserFromContext(ctx)
 }
 

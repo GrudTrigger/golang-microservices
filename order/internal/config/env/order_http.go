@@ -14,6 +14,8 @@ type orderHttpEnvConfig struct {
 	InventoryPort string `env:"INVENTORY_GRPC_PORT,required"`
 	PaymentHost   string `env:"PAYMENT_GRPC_HOST,required"`
 	PaymentPort   string `env:"PAYMENT_GRPC_PORT,required"`
+	IamHost       string `env:"IAM_GRPC_HOST,required"`
+	IamPort       string `env:"IAM_GRPC_PORT,required"`
 }
 
 type orderHttpConfig struct {
@@ -34,6 +36,10 @@ func (o *orderHttpConfig) InventoryClientAddress() string {
 
 func (o *orderHttpConfig) PaymentClientAddress() string {
 	return net.JoinHostPort(o.row.PaymentHost, o.row.PaymentPort)
+}
+
+func (o *orderHttpConfig) IamClientAddress() string {
+	return net.JoinHostPort(o.row.IamHost, o.row.IamPort)
 }
 
 func (o *orderHttpConfig) Address() string {

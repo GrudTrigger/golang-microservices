@@ -15,6 +15,7 @@ type PostgresConfig interface {
 type OrderHttpConfig interface {
 	InventoryClientAddress() string
 	PaymentClientAddress() string
+	IamClientAddress() string
 	Address() string
 	TimeOut() string
 }
